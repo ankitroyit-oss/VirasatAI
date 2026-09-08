@@ -115,7 +115,7 @@ export const giProducts = [
     stateId: "west-bengal",
     siteIds: [],
     giTag: true,
-    price: "₹ 985.00",
+    price: "₹ 1,850.00",
     description: "Vibrant papier-mâché masks depicting gods, demons, and animals from Hindu mythology. Used in the UNESCO-recognized Chhau dance tradition.",
     artisanStory: "Sutradhar community artisans in Charida village (Purulia) have been crafting these masks for generations. The entire village's economy depends on this craft.",
     buyLink: "https://www.gitagged.com/online-store/handicraft/",
