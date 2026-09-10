@@ -15,6 +15,12 @@ class VirasatApp {
     this.cameraStream = null;
     this.quizState = null;
     this.activeMapState = null;
+    // HUD state
+    this.userPosition = null; // { lat, lng, accuracy }
+    this.deviceHeading = null; // degrees from north
+    this.geoWatchId = null;
+    this.hudTarget = null; // selected heritage site object
+    this.hudActive = false;
     this.init();
   }
 
@@ -194,6 +200,21 @@ class VirasatApp {
     btnCapture.addEventListener('click', () => this.captureImage());
     btnDemo.addEventListener('click', () => this.runDemo());
     fileInput.addEventListener('change', (e) => this.handleUpload(e));
+
+    // Populate HUD target dropdown with all heritage sites
+    const select = document.getElementById('hudTargetSelect');
+    if (select) {
+      heritageSites.forEach(site => {
+        const opt = document.createElement('option');
+        opt.value = site.id;
+        opt.textContent = `${site.emoji} ${site.name}`;
+        select.appendChild(opt);
+      });
+      select.addEventListener('change', (e) => {
+        this.hudTarget = e.target.value ? findSiteById(e.target.value) : null;
+        this.updateHudDistanceBearing();
+      });
+    }
   }
 
   async startCamera() {
@@ -213,8 +234,180 @@ class VirasatApp {
       btnCapture.style.display = 'inline-flex';
 
       document.getElementById('scannerViewfinder').classList.add('scanning');
+
+      // Activate HUD
+      this.activateHud();
     } catch (err) {
       alert('Camera access denied or unavailable. Please upload a photo instead.');
+    }
+  }
+
+  // ==================== AR HUD ====================
+  activateHud() {
+    const hud = document.getElementById('scannerHud');
+    if (hud) {
+      hud.style.display = 'block';
+      this.hudActive = true;
+      this.startLocationTracking();
+      this.startOrientationTracking();
+    }
+  }
+
+  deactivateHud() {
+    const hud = document.getElementById('scannerHud');
+    if (hud) hud.style.display = 'none';
+    this.hudActive = false;
+    if (this.geoWatchId !== null) {
+      navigator.geolocation.clearWatch(this.geoWatchId);
+      this.geoWatchId = null;
+    }
+    window.removeEventListener('deviceorientation', this._orientationHandler);
+    window.removeEventListener('deviceorientationabsolute', this._orientationHandler);
+  }
+
+  startLocationTracking() {
+    if (!navigator.geolocation) {
+      document.getElementById('hudLat').textContent = 'GPS N/A';
+      document.getElementById('hudLng').textContent = '';
+      return;
+    }
+
+    const options = { enableHighAccuracy: true, maximumAge: 2000, timeout: 10000 };
+
+    this.geoWatchId = navigator.geolocation.watchPosition(
+      (pos) => {
+        this.userPosition = {
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+          accuracy: pos.coords.accuracy
+        };
+        document.getElementById('hudLat').textContent = `Lat: ${this.userPosition.lat.toFixed(4)}°`;
+        document.getElementById('hudLng').textContent = `Lng: ${this.userPosition.lng.toFixed(4)}°`;
+        document.getElementById('hudAccuracy').textContent = `± ${Math.round(this.userPosition.accuracy)} m`;
+        this.updateHudDistanceBearing();
+      },
+      (err) => {
+        document.getElementById('hudLat').textContent = 'Location denied';
+        document.getElementById('hudLng').textContent = '';
+        document.getElementById('hudAccuracy').textContent = '';
+      },
+      options
+    );
+  }
+
+  startOrientationTracking() {
+    this._orientationHandler = (event) => {
+      // webkitCompassHeading (iOS) or alpha (Android)
+      let heading = event.webkitCompassHeading || (event.alpha !== null ? (360 - event.alpha) : null);
+      if (heading === null || heading === undefined) return;
+
+      heading = Math.round(heading);
+      this.deviceHeading = heading;
+
+      document.getElementById('hudHeading').textContent = `${heading}°`;
+      document.getElementById('hudDirection').textContent = this.getCardinalDirection(heading);
+
+      // Rotate compass needle
+      const needle = document.getElementById('compassNeedle');
+      if (needle) {
+        needle.style.transform = `translateX(-50%) rotate(${heading}deg)`;
+      }
+
+      this.updateHudDistanceBearing();
+    };
+
+    // iOS 13+ requires permission request for device orientation
+    if (typeof DeviceOrientationEvent !== 'undefined' &&
+        typeof DeviceOrientationEvent.requestPermission === 'function') {
+      DeviceOrientationEvent.requestPermission()
+        .then(state => {
+          if (state === 'granted') {
+            window.addEventListener('deviceorientation', this._orientationHandler, true);
+          } else {
+            document.getElementById('hudHeading').textContent = 'Denied';
+            document.getElementById('hudDirection').textContent = '';
+          }
+        })
+        .catch(() => {
+          document.getElementById('hudHeading').textContent = 'N/A';
+        });
+    } else {
+      // Try absolute first (more reliable on Android), then fallback
+      window.addEventListener('deviceorientationabsolute', this._orientationHandler, true);
+      window.addEventListener('deviceorientation', this._orientationHandler, true);
+    }
+  }
+
+  getCardinalDirection(deg) {
+    const dirs = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE',
+                  'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+    return dirs[Math.round(deg / 22.5) % 16];
+  }
+
+  /** Haversine formula — returns distance in km */
+  calculateDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371; // Earth's radius in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) ** 2 +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLon / 2) ** 2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
+
+  /** Forward bearing in degrees (0-360) from point 1 to point 2 */
+  calculateBearing(lat1, lon1, lat2, lon2) {
+    const toRad = d => d * Math.PI / 180;
+    const φ1 = toRad(lat1), φ2 = toRad(lat2);
+    const Δλ = toRad(lon2 - lon1);
+    const y = Math.sin(Δλ) * Math.cos(φ2);
+    const x = Math.cos(φ1) * Math.sin(φ2) - Math.sin(φ1) * Math.cos(φ2) * Math.cos(Δλ);
+    return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+  }
+
+  /** Get a human-friendly relative direction label */
+  getRelativeDirection(bearing, heading) {
+    let diff = ((bearing - heading) + 360) % 360;
+    if (diff <= 22.5 || diff > 337.5) return '↑ Straight Ahead';
+    if (diff > 22.5 && diff <= 67.5) return '↗ Slight Right';
+    if (diff > 67.5 && diff <= 112.5) return '→ Turn Right';
+    if (diff > 112.5 && diff <= 157.5) return '↘ Behind Right';
+    if (diff > 157.5 && diff <= 202.5) return '↓ Behind You';
+    if (diff > 202.5 && diff <= 247.5) return '↙ Behind Left';
+    if (diff > 247.5 && diff <= 292.5) return '← Turn Left';
+    return '↖ Slight Left';
+  }
+
+  updateHudDistanceBearing() {
+    if (!this.userPosition || !this.hudTarget) {
+      document.getElementById('hudDistance').textContent = '--- km';
+      document.getElementById('hudBearing').textContent = 'Bearing: ---°';
+      document.getElementById('hudRelative').textContent = this.hudTarget ? 'Waiting for GPS...' : 'Select a target';
+      return;
+    }
+
+    const [tLat, tLng] = this.hudTarget.location.coordinates;
+    const dist = this.calculateDistance(this.userPosition.lat, this.userPosition.lng, tLat, tLng);
+    const bearing = this.calculateBearing(this.userPosition.lat, this.userPosition.lng, tLat, tLng);
+
+    // Format distance
+    let distStr;
+    if (dist < 1) {
+      distStr = `${Math.round(dist * 1000)} m`;
+    } else if (dist < 100) {
+      distStr = `${dist.toFixed(1)} km`;
+    } else {
+      distStr = `${Math.round(dist)} km`;
+    }
+
+    document.getElementById('hudDistance').textContent = distStr;
+    document.getElementById('hudBearing').textContent = `Bearing: ${Math.round(bearing)}°`;
+
+    // Show relative direction if we have compass heading
+    if (this.deviceHeading !== null) {
+      document.getElementById('hudRelative').textContent = this.getRelativeDirection(bearing, this.deviceHeading);
+    } else {
+      document.getElementById('hudRelative').textContent = `→ ${this.hudTarget.location.city}`;
     }
   }
 
