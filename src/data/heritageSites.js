@@ -721,7 +721,7 @@ export const heritageSites = [
   {
     id: "humayuns-tomb",
     name: "Humayun's Tomb",
-    image: "https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&q=80&w=800",
+    image: "./images/humayuns-tomb.jpg",
     nameHindi: "हुमायूँ का मक़बरा",
     location: { state: "Delhi", city: "New Delhi", coordinates: [28.5933, 77.2507] },
     category: "monument",
@@ -755,7 +755,7 @@ export const heritageSites = [
   {
     id: "fatehpur-sikri",
     name: "Fatehpur Sikri",
-    image: "https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?auto=format&fit=crop&q=80&w=800",
+    image: "./images/fatehpur-sikri.jpg",
     nameHindi: "फ़तेहपुर सीकरी",
     location: { state: "Uttar Pradesh", city: "Agra District", coordinates: [27.0945, 77.6679] },
     category: "monument",
@@ -789,7 +789,7 @@ export const heritageSites = [
   {
     id: "kedarnath-temple",
     name: "Kedarnath Temple",
-    image: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&q=80&w=800",
+    image: "./images/kedarnath-temple.jpg",
     nameHindi: "केदारनाथ मंदिर",
     location: { state: "Uttarakhand", city: "Rudraprayag", coordinates: [30.7352, 79.0669] },
     category: "temple",
@@ -823,7 +823,7 @@ export const heritageSites = [
   {
     id: "mehrangarh-fort",
     name: "Mehrangarh Fort",
-    image: "https://images.unsplash.com/photo-1599661046827-dacff0c0f09a?auto=format&fit=crop&q=80&w=800",
+    image: "./images/mehrangarh-fort.jpg",
     nameHindi: "मेहरानगढ़ क़िला",
     location: { state: "Rajasthan", city: "Jodhpur", coordinates: [26.2978, 73.0185] },
     category: "fort",
@@ -858,7 +858,7 @@ export const heritageSites = [
   {
     id: "city-palace-udaipur",
     name: "City Palace Udaipur",
-    image: "https://images.unsplash.com/photo-1615836245337-f5b9b2303f10?auto=format&fit=crop&q=80&w=800",
+    image: "./images/city-palace-udaipur.jpg",
     nameHindi: "सिटी पैलेस उदयपुर",
     location: { state: "Rajasthan", city: "Udaipur", coordinates: [24.5764, 73.6835] },
     category: "fort",
@@ -893,7 +893,7 @@ export const heritageSites = [
   {
     id: "modhera-sun-temple",
     name: "Sun Temple Modhera",
-    image: "https://images.unsplash.com/photo-1609766857041-ed402ea8069a?auto=format&fit=crop&q=80&w=800",
+    image: "./images/modhera-sun-temple.jpg",
     nameHindi: "मोढेरा सूर्य मंदिर",
     location: { state: "Gujarat", city: "Mehsana District", coordinates: [23.5835, 72.1331] },
     category: "temple",
@@ -927,7 +927,7 @@ export const heritageSites = [
   {
     id: "somnath-temple",
     name: "Somnath Temple",
-    image: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&q=80&w=800",
+    image: "./images/somnath-temple.jpg",
     nameHindi: "सोमनाथ मंदिर",
     location: { state: "Gujarat", city: "Prabhas Patan, Veraval", coordinates: [20.8880, 70.4013] },
     category: "temple",
@@ -961,7 +961,7 @@ export const heritageSites = [
   {
     id: "nalanda-mahavihara",
     name: "Nalanda Mahavihara",
-    image: "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&q=80&w=800",
+    image: "./images/nalanda-mahavihara.jpg",
     nameHindi: "नालंदा महाविहार",
     location: { state: "Bihar", city: "Nalanda District", coordinates: [25.1357, 85.4450] },
     category: "other",
@@ -996,7 +996,7 @@ export const heritageSites = [
   {
     id: "kamakhya-temple",
     name: "Kamakhya Temple",
-    image: "https://images.unsplash.com/photo-1598890777032-bde13fbe3493?auto=format&fit=crop&q=80&w=800",
+    image: "./images/kamakhya-temple.jpg",
     nameHindi: "कामाख्या मंदिर",
     location: { state: "Assam", city: "Guwahati", coordinates: [26.1664, 91.7054] },
     category: "temple",
@@ -1031,7 +1031,7 @@ export const heritageSites = [
   {
     id: "jagannath-temple-puri",
     name: "Jagannath Temple Puri",
-    image: "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&q=80&w=800",
+    image: "./images/jagannath-temple-puri.jpg",
     nameHindi: "जगन्नाथ मंदिर पुरी",
     location: { state: "Odisha", city: "Puri", coordinates: [19.8049, 85.8179] },
     category: "temple",
@@ -1066,7 +1066,7 @@ export const heritageSites = [
   {
     id: "gwalior-fort",
     name: "Gwalior Fort",
-    image: "https://images.unsplash.com/photo-1609766857041-ed402ea8069a?auto=format&fit=crop&q=80&w=800",
+    image: "./images/gwalior-fort.jpg",
     nameHindi: "ग्वालियर क़िला",
     location: { state: "Madhya Pradesh", city: "Gwalior", coordinates: [26.2307, 78.1695] },
     category: "fort",
@@ -1100,7 +1100,7 @@ export const heritageSites = [
   {
     id: "bhimbetka-rock-shelters",
     name: "Bhimbetka Rock Shelters",
-    image: "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&q=80&w=800",
+    image: "./images/bhimbetka-rock-shelters.jpg",
     nameHindi: "भीमबेटका रॉक शेल्टर",
     location: { state: "Madhya Pradesh", city: "Raisen District", coordinates: [22.9372, 77.6128] },
     category: "cave",
@@ -1135,7 +1135,7 @@ export const heritageSites = [
   {
     id: "padmanabhaswamy-temple",
     name: "Padmanabhaswamy Temple",
-    image: "https://images.unsplash.com/photo-1600100397608-2e06718a38c2?auto=format&fit=crop&q=80&w=800",
+    image: "./images/padmanabhaswamy-temple.jpg",
     nameHindi: "पद्मनाभस्वामी मंदिर",
     location: { state: "Kerala", city: "Thiruvananthapuram", coordinates: [8.4828, 76.9436] },
     category: "temple",
@@ -1170,7 +1170,7 @@ export const heritageSites = [
   {
     id: "elephanta-caves",
     name: "Elephanta Caves",
-    image: "https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?auto=format&fit=crop&q=80&w=800",
+    image: "./images/elephanta-caves.jpg",
     nameHindi: "एलिफेंटा गुफाएं",
     location: { state: "Maharashtra", city: "Elephanta Island, Mumbai Harbor", coordinates: [18.9633, 72.9315] },
     category: "cave",
@@ -1204,7 +1204,7 @@ export const heritageSites = [
   {
     id: "belur-chennakeshava",
     name: "Chennakeshava Temple Belur",
-    image: "https://images.unsplash.com/photo-1600100397608-2e06718a38c2?auto=format&fit=crop&q=80&w=800",
+    image: "./images/belur-chennakeshava.jpg",
     nameHindi: "चेन्नकेशव मंदिर बेलूर",
     location: { state: "Karnataka", city: "Hassan District", coordinates: [13.1627, 75.8604] },
     category: "temple",
