@@ -844,6 +844,174 @@ body { top: 0px !important; position: relative !important; }
 
 .scanner-btn { font-size: var(--text-sm); padding: var(--space-3) var(--space-5); }
 
+/* Settings Button */
+.btn-settings {
+  background: rgba(255,255,255,0.06) !important;
+  border: 1px solid rgba(255,255,255,0.15) !important;
+  color: rgba(255,255,255,0.7) !important;
+  font-size: var(--text-xs) !important;
+  padding: var(--space-2) var(--space-4) !important;
+}
+.btn-settings:hover {
+  background: rgba(255,255,255,0.12) !important;
+  color: var(--saffron) !important;
+}
+
+/* ===========================
+   GEMINI API KEY MODAL
+   =========================== */
+.api-key-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.api-key-modal {
+  position: relative;
+  background: linear-gradient(135deg, rgba(26, 26, 46, 0.95), rgba(15, 15, 30, 0.98));
+  border: 1px solid rgba(255, 107, 53, 0.3);
+  border-radius: var(--radius-2xl);
+  padding: var(--space-8);
+  max-width: 460px;
+  width: 90%;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(255, 107, 53, 0.08);
+  animation: modalSlideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes modalSlideUp {
+  from { opacity: 0; transform: translateY(30px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.api-key-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.5);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: var(--radius-md);
+  transition: all 0.2s;
+}
+.api-key-close:hover {
+  color: #fff;
+  background: rgba(255,255,255,0.1);
+}
+
+.api-key-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.api-key-icon { font-size: 2rem; }
+
+.api-key-header h3 {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--warm-white);
+  margin: 0;
+}
+
+.api-key-desc {
+  font-size: var(--text-sm);
+  color: rgba(255,255,255,0.6);
+  line-height: 1.6;
+  margin-bottom: var(--space-5);
+}
+
+.api-key-desc a {
+  color: var(--saffron);
+  text-decoration: underline;
+}
+
+.api-key-input-group {
+  margin-bottom: var(--space-4);
+  position: relative;
+}
+
+.api-key-input-group label {
+  display: block;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: var(--space-2);
+}
+
+.api-key-input {
+  width: 100%;
+  padding: 12px 48px 12px 16px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: var(--radius-lg);
+  color: #fff;
+  font-family: 'Courier New', monospace;
+  font-size: var(--text-sm);
+  outline: none;
+  transition: border-color 0.3s;
+  box-sizing: border-box;
+}
+
+.api-key-input:focus {
+  border-color: var(--saffron);
+}
+
+.api-key-input::placeholder {
+  color: rgba(255,255,255,0.25);
+}
+
+.api-key-toggle {
+  position: absolute;
+  right: 8px;
+  bottom: 6px;
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.4);
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: 4px 8px;
+}
+
+.api-key-status {
+  font-size: var(--text-sm);
+  min-height: 24px;
+  margin-bottom: var(--space-4);
+  padding: 0 4px;
+}
+
+.api-key-status.success { color: #4CAF50; }
+.api-key-status.error { color: #ff5252; }
+.api-key-status.loading { color: var(--royal-gold); }
+
+.api-key-actions {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.api-key-actions .btn {
+  flex: 1;
+  font-size: var(--text-sm);
+  padding: 10px 16px;
+}
+
 /* Processing */
 .scanner-processing {
   text-align: center;

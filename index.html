@@ -191,11 +191,14 @@
         <button class="btn btn-accent scanner-btn" id="btnDemo">
           <span class="btn-icon">✨</span> Try Demo
         </button>
+        <button class="btn scanner-btn btn-settings" id="btnApiSettings" title="Gemini API Settings">
+          <span class="btn-icon">⚙️</span> API Key
+        </button>
       </div>
       <!-- Processing indicator -->
       <div class="scanner-processing" id="scannerProcessing" style="display:none;">
         <div class="processing-mandala"></div>
-        <p class="processing-text">Analyzing heritage site...</p>
+        <p class="processing-text" id="processingText">Analyzing with Gemini AI...</p>
       </div>
       <!-- Result card -->
       <div class="scanner-result" id="scannerResult" style="display:none;"></div>
@@ -387,6 +390,28 @@
       <p class="footer-tagline">Built with ❤️ for India</p>
     </div>
   </footer>
+
+  <!-- ===== GEMINI API KEY MODAL ===== -->
+  <div class="api-key-overlay" id="apiKeyOverlay" style="display:none;">
+    <div class="api-key-modal">
+      <button class="api-key-close" id="apiKeyClose">&times;</button>
+      <div class="api-key-header">
+        <span class="api-key-icon">🔑</span>
+        <h3>Gemini API Settings</h3>
+      </div>
+      <p class="api-key-desc">Enter your Google Gemini API key to enable real AI-powered heritage site recognition. Get a free key at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a>.</p>
+      <div class="api-key-input-group">
+        <label for="geminiApiKeyInput">API Key</label>
+        <input type="password" id="geminiApiKeyInput" class="api-key-input" placeholder="AIzaSy..." autocomplete="off" />
+        <button class="api-key-toggle" id="apiKeyToggle" title="Show/Hide">👁️</button>
+      </div>
+      <div class="api-key-status" id="apiKeyStatus"></div>
+      <div class="api-key-actions">
+        <button class="btn btn-primary" id="apiKeySave">💾 Save Key</button>
+        <button class="btn btn-secondary" id="apiKeyTest">🧪 Test Connection</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Google Translate -->
   <div id="google_translate_element" style="display:none;"></div>

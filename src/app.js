@@ -21,6 +21,8 @@ class VirasatApp {
     this.geoWatchId = null;
     this.hudTarget = null; // selected heritage site object
     this.hudActive = false;
+    // Gemini API
+    this.geminiApiKey = localStorage.getItem('virasatai_gemini_key') || null;
     this.init();
   }
 
@@ -200,6 +202,15 @@ class VirasatApp {
     btnCapture.addEventListener('click', () => this.captureImage());
     btnDemo.addEventListener('click', () => this.runDemo());
     fileInput.addEventListener('change', (e) => this.handleUpload(e));
+
+    // API Key settings button
+    const btnSettings = document.getElementById('btnApiSettings');
+    if (btnSettings) {
+      btnSettings.addEventListener('click', () => this.showApiKeyModal());
+    }
+
+    // API Key modal controls
+    this.setupApiKeyModal();
 
     // Populate HUD target dropdown with all heritage sites
     const select = document.getElementById('hudTargetSelect');
@@ -459,19 +470,247 @@ class VirasatApp {
 
   async processImage() {
     const processing = document.getElementById('scannerProcessing');
+    const processingText = document.getElementById('processingText');
     const result = document.getElementById('scannerResult');
     result.style.display = 'none';
     processing.style.display = 'block';
 
-    // Simulate processing delay
-    await new Promise(r => setTimeout(r, 2500));
+    // Check if API key is set
+    if (!this.geminiApiKey) {
+      processingText.textContent = 'No API key set. Using demo mode...';
+      await new Promise(r => setTimeout(r, 1500));
+      processing.style.display = 'none';
+      // Fallback to random site demo
+      const randomSite = heritageSites[Math.floor(Math.random() * heritageSites.length)];
+      const confidence = (70 + Math.random() * 20).toFixed(1);
+      this.showScanResult(randomSite, confidence);
+      return;
+    }
 
-    // Pick a random heritage site for demo
-    const randomSite = heritageSites[Math.floor(Math.random() * heritageSites.length)];
-    const confidence = (85 + Math.random() * 14).toFixed(1);
+    try {
+      processingText.textContent = 'Sending to Gemini AI...';
 
-    processing.style.display = 'none';
-    this.showScanResult(randomSite, confidence);
+      // Convert canvas to base64
+      const canvas = document.getElementById('captureCanvas');
+      const base64Image = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
+
+      processingText.textContent = 'Gemini is analyzing the image...';
+
+      // Call Gemini Vision API
+      const geminiResult = await this.callGeminiVision(base64Image);
+
+      processing.style.display = 'none';
+
+      if (geminiResult && geminiResult.site_id && geminiResult.site_id !== 'unknown') {
+        const site = findSiteById(geminiResult.site_id);
+        if (site) {
+          this.showScanResult(site, geminiResult.confidence.toString());
+          return;
+        }
+      }
+
+      // If Gemini returned unknown or no match
+      processing.style.display = 'none';
+      result.style.display = 'block';
+      result.innerHTML = `
+        <div class="result-header">
+          <span class="result-emoji">❓</span>
+          <div>
+            <div class="result-name">${geminiResult?.name || 'Unrecognized Site'}</div>
+            <div class="result-name-hindi">पहचाना नहीं गया</div>
+          </div>
+          <span class="result-confidence" style="background:rgba(255,82,82,0.15);color:#ff5252;">Low Match</span>
+        </div>
+        <p style="color:rgba(255,255,255,0.6);padding:16px 0;">
+          ${geminiResult?.description || 'This image does not appear to match any of the 20 heritage sites in our database. Try pointing the camera at a well-known Indian monument like the Taj Mahal, Red Fort, or Hawa Mahal.'}
+        </p>
+      `;
+    } catch (err) {
+      console.error('Gemini API error:', err);
+      processing.style.display = 'none';
+
+      // Show error and fallback
+      result.style.display = 'block';
+      result.innerHTML = `
+        <div class="result-header">
+          <span class="result-emoji">⚠️</span>
+          <div>
+            <div class="result-name">API Error</div>
+            <div class="result-name-hindi" style="color:#ff5252;">${err.message || 'Connection failed'}</div>
+          </div>
+        </div>
+        <p style="color:rgba(255,255,255,0.6);padding:16px 0;">Please check your API key in ⚙️ Settings, or try the Demo button instead.</p>
+      `;
+    }
+  }
+
+  // ==================== GEMINI API ====================
+  async callGeminiVision(base64Image) {
+    const siteIds = heritageSites.map(s => s.id).join(', ');
+
+    const prompt = `You are an expert on Indian heritage monuments and archaeological sites.
+
+Analyze this image and identify which Indian heritage monument or site is shown.
+
+You MUST respond with ONLY a valid JSON object (no markdown, no backticks, no explanation), in this exact format:
+{"site_id": "the-site-id", "confidence": 85, "name": "Full Name", "description": "Brief 1-line description of what you see"}
+
+Choose site_id from ONLY these options:
+${siteIds}
+
+If the image does NOT clearly match any of these sites, respond with:
+{"site_id": "unknown", "confidence": 0, "name": "Unknown", "description": "This image does not match any known Indian heritage site in our database."}
+
+IMPORTANT: confidence should be 0-100 based on how certain you are. Only return confidence > 70 if you are quite sure.`;
+
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${this.geminiApiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{
+            parts: [
+              { text: prompt },
+              {
+                inlineData: {
+                  mimeType: 'image/jpeg',
+                  data: base64Image
+                }
+              }
+            ]
+          }],
+          generationConfig: {
+            temperature: 0.1,
+            maxOutputTokens: 256
+          }
+        })
+      }
+    );
+
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      throw new Error(errData?.error?.message || `API returned ${response.status}`);
+    }
+
+    const data = await response.json();
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+    // Parse JSON from Gemini response (strip any markdown fences)
+    const cleanText = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    try {
+      return JSON.parse(cleanText);
+    } catch (parseErr) {
+      console.warn('Gemini response parse error:', cleanText);
+      return { site_id: 'unknown', confidence: 0, name: 'Parse Error', description: cleanText.substring(0, 200) };
+    }
+  }
+
+  getGeminiApiKey() {
+    return localStorage.getItem('virasatai_gemini_key') || '';
+  }
+
+  setGeminiApiKey(key) {
+    if (key) {
+      localStorage.setItem('virasatai_gemini_key', key);
+    } else {
+      localStorage.removeItem('virasatai_gemini_key');
+    }
+    this.geminiApiKey = key || null;
+  }
+
+  showApiKeyModal() {
+    const overlay = document.getElementById('apiKeyOverlay');
+    const input = document.getElementById('geminiApiKeyInput');
+    if (overlay) {
+      overlay.style.display = 'flex';
+      input.value = this.getGeminiApiKey();
+      document.getElementById('apiKeyStatus').textContent = '';
+      document.getElementById('apiKeyStatus').className = 'api-key-status';
+    }
+  }
+
+  hideApiKeyModal() {
+    const overlay = document.getElementById('apiKeyOverlay');
+    if (overlay) overlay.style.display = 'none';
+  }
+
+  setupApiKeyModal() {
+    const overlay = document.getElementById('apiKeyOverlay');
+    const closeBtn = document.getElementById('apiKeyClose');
+    const saveBtn = document.getElementById('apiKeySave');
+    const testBtn = document.getElementById('apiKeyTest');
+    const toggleBtn = document.getElementById('apiKeyToggle');
+    const input = document.getElementById('geminiApiKeyInput');
+
+    if (!overlay) return;
+
+    // Close modal
+    closeBtn?.addEventListener('click', () => this.hideApiKeyModal());
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) this.hideApiKeyModal();
+    });
+
+    // Toggle password visibility
+    toggleBtn?.addEventListener('click', () => {
+      input.type = input.type === 'password' ? 'text' : 'password';
+    });
+
+    // Save key
+    saveBtn?.addEventListener('click', () => {
+      const key = input.value.trim();
+      this.setGeminiApiKey(key);
+      const status = document.getElementById('apiKeyStatus');
+      if (key) {
+        status.textContent = '✅ API key saved successfully!';
+        status.className = 'api-key-status success';
+      } else {
+        status.textContent = '🗑️ API key removed. Demo mode active.';
+        status.className = 'api-key-status error';
+      }
+    });
+
+    // Test connection
+    testBtn?.addEventListener('click', async () => {
+      const key = input.value.trim();
+      if (!key) {
+        const status = document.getElementById('apiKeyStatus');
+        status.textContent = '⚠️ Please enter an API key first.';
+        status.className = 'api-key-status error';
+        return;
+      }
+
+      const status = document.getElementById('apiKeyStatus');
+      status.textContent = '🔄 Testing connection...';
+      status.className = 'api-key-status loading';
+
+      try {
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: 'Respond with exactly: OK' }] }],
+              generationConfig: { maxOutputTokens: 10 }
+            })
+          }
+        );
+
+        if (response.ok) {
+          status.textContent = '✅ Connection successful! Gemini API is working.';
+          status.className = 'api-key-status success';
+          this.setGeminiApiKey(key);
+        } else {
+          const errData = await response.json().catch(() => ({}));
+          status.textContent = `❌ Error: ${errData?.error?.message || response.status}`;
+          status.className = 'api-key-status error';
+        }
+      } catch (err) {
+        status.textContent = `❌ Network error: ${err.message}`;
+        status.className = 'api-key-status error';
+      }
+    });
   }
 
   runDemo() {
