@@ -8,6 +8,7 @@ import { indianStates, findStateById } from './data/indianStates.js';
 import { getRandomQuestions } from './data/quizQuestions.js';
 import { timelineEras } from './data/timeline.js';
 import { giProducts, getProductsByState, getProductsBySite, getProductsByCategory } from './data/giProducts.js';
+import { getMonumentReviews, getMonumentRatingStats, saveMonumentReview } from './data/monumentReviews.js';
 
 // ==================== APP INITIALIZATION ====================
 class VirasatApp {
@@ -31,6 +32,7 @@ class VirasatApp {
     } catch (_) {}
     this.geminiApiKey = localStorage.getItem('virasatai_gemini_key') || null;
     this.uploadedFileName = null;
+    window.app = this;
     this.init();
   }
 
@@ -839,6 +841,7 @@ IMPORTANT: confidence should be 0-100 based on how certain you are. Only return 
   showScanResult(site, confidence) {
     const result = document.getElementById('scannerResult');
     result.style.display = 'block';
+    const stats = getMonumentRatingStats(site.id);
 
     const tabs = [
       { id: 'history', label: '📖 History', content: this.renderHistoryTab(site) },
@@ -846,7 +849,8 @@ IMPORTANT: confidence should be 0-100 based on how certain you are. Only return 
       { id: 'art', label: '🎨 Art & Craft', content: this.renderArtTab(site) },
       { id: 'stories', label: '📚 Stories', content: this.renderStoriesTab(site) },
       { id: 'facts', label: '💡 Fun Facts', content: this.renderFactsTab(site) },
-      { id: 'shop', label: '🛍️ Shop', content: this.renderShopTab(site) }
+      { id: 'shop', label: '🛍️ Shop', content: this.renderShopTab(site) },
+      { id: 'reviews', label: `⭐ Reviews (${stats.total})`, content: this.renderReviewsTab(site) }
     ];
 
     result.innerHTML = `
@@ -855,7 +859,7 @@ IMPORTANT: confidence should be 0-100 based on how certain you are. Only return 
         <div>
           <div class="result-name">${site.name}</div>
           <div class="result-name-hindi">${site.nameHindi}</div>
-          <div class="result-location">📍 ${site.location.city}, ${site.location.state} · ${site.period}</div>
+          <div class="result-location">📍 ${site.location.city}, ${site.location.state} · ${site.period} · <span style="color:var(--royal-gold);font-weight:700;">⭐ ${stats.average} (${stats.total} reviews)</span></div>
         </div>
         <span class="result-confidence">${confidence}% match</span>
       </div>
@@ -945,6 +949,35 @@ IMPORTANT: confidence should be 0-100 based on how certain you are. Only return 
             <a href="${p.buyLink}" target="_blank" rel="noopener noreferrer" class="btn-shop" style="font-size:var(--text-xs);padding:6px 12px;">Shop</a>
           </div>
         `).join('')}
+      </div>
+    `;
+  }
+
+  renderReviewsTab(site) {
+    const stats = getMonumentRatingStats(site.id);
+    const reviews = getMonumentReviews(site.id);
+    return `
+      <div style="padding:var(--space-2) 0;">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--space-3);margin-bottom:var(--space-4);">
+          <div>
+            <div style="font-size:var(--text-xl);font-weight:800;color:var(--royal-gold);">⭐ ${stats.average} / 5.0</div>
+            <div style="font-size:var(--text-xs);color:rgba(255,255,255,0.6);">Based on ${stats.total} verified visitor ratings</div>
+          </div>
+          <button class="btn btn-secondary" style="font-size:var(--text-xs);padding:6px 14px;" onclick="window.app?.showSiteLightbox(window.app?.findSiteById('${site.id}'))">
+            ✍️ Add Your Review & Rating
+          </button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:var(--space-3);">
+          ${reviews.slice(0, 3).map(r => `
+            <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:var(--radius-md);padding:var(--space-3);">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                <strong style="color:var(--warm-white);font-size:var(--text-xs);">${r.author}</strong>
+                <span style="color:var(--royal-gold);font-size:var(--text-xs);">${'★'.repeat(r.rating)}</span>
+              </div>
+              <p style="font-size:var(--text-xs);color:rgba(255,255,255,0.7);line-height:1.6;margin:0;">${r.text || 'Rated ' + r.rating + ' stars'}</p>
+            </div>
+          `).join('')}
+        </div>
       </div>
     `;
   }
@@ -1175,6 +1208,7 @@ IMPORTANT: confidence should be 0-100 based on how certain you are. Only return 
   showSiteLightbox(site) {
     const lightbox = document.getElementById('lightbox');
     const content = document.getElementById('lightboxContent');
+    const stats = getMonumentRatingStats(site.id);
     lightbox.style.display = 'flex';
 
     content.innerHTML = `
@@ -1185,9 +1219,14 @@ IMPORTANT: confidence should be 0-100 based on how certain you are. Only return 
         <h3 style="font-size:var(--text-3xl);font-weight:800;margin:var(--space-3) 0;">${site.name}</h3>
         <p style="font-family:var(--font-accent);color:var(--royal-gold);">${site.nameHindi}</p>
         <p style="color:rgba(255,255,255,0.5);font-size:var(--text-sm);margin-top:var(--space-2);">📍 ${site.location.city}, ${site.location.state} · ${site.period}</p>
-        ${site.unesco ? '<span class="badge badge-unesco" style="margin-top:var(--space-2);display:inline-block;">🏆 UNESCO World Heritage Site</span>' : ''}
+        <div style="display:flex;gap:var(--space-2);justify-content:center;align-items:center;flex-wrap:wrap;margin-top:var(--space-3);">
+          ${site.unesco ? '<span class="badge badge-unesco">🏆 UNESCO World Heritage Site</span>' : ''}
+          <a href="#siteReviewsSection" class="lightbox-rating-badge" id="lightboxRatingSummaryBadge">
+            ⭐ ${stats.average} / 5.0 (${stats.total} visitor reviews)
+          </a>
+        </div>
       </div>
-      <p style="color:rgba(255,255,255,0.7);line-height:1.8;margin-bottom:var(--space-5);">${site.significance}</p>
+      <p style="color:rgba(255,255,255,0.7);line-height:1.8;margin-bottom:var(--space-5);margin-top:var(--space-4);">${site.significance}</p>
 
       <h4 style="color:var(--royal-gold);margin-bottom:var(--space-3);">📖 History</h4>
       <p style="color:rgba(255,255,255,0.65);line-height:1.8;margin-bottom:var(--space-5);">${site.history}</p>
@@ -1211,12 +1250,257 @@ IMPORTANT: confidence should be 0-100 based on how certain you are. Only return 
       <h4 style="color:var(--royal-gold);margin:var(--space-4) 0 var(--space-3);">💡 Fun Facts</h4>
       ${site.funFacts.map(f => `<div class="fun-fact-card">💡 ${f}</div>`).join('')}
 
-      <div style="margin-top:var(--space-5);">
+      <div style="margin-top:var(--space-5);margin-bottom:var(--space-6);">
         ${site.tags.map(t => `<span class="result-tag">#${t}</span>`).join('')}
+      </div>
+
+      <!-- ===== VISITOR FEEDBACK & STAR RATINGS ===== -->
+      <div class="monument-reviews-section" id="siteReviewsSection">
+        <div class="reviews-section-header">
+          <div class="reviews-section-title">
+            <span>⭐</span> Visitor Experiences & Ratings
+          </div>
+          <span style="color:rgba(255,255,255,0.5);font-size:var(--text-sm);">Verified Explorer Feedback</span>
+        </div>
+
+        <!-- Rating Summary Card -->
+        <div class="rating-summary-card" id="ratingSummaryCard">
+          ${this.renderRatingSummaryContent(site.id)}
+        </div>
+
+        <!-- Feedback Submission Form -->
+        <div class="feedback-form-card">
+          <div class="feedback-form-title">
+            <span>✍️</span> Rate & Share Your Visit Experience
+          </div>
+          <p class="feedback-form-subtitle">Pick your star rating (1–5 stars) and optionally add your personal impressions, architectural notes, or visitor tips.</p>
+
+          <!-- Interactive Star Selector -->
+          <div class="star-selector-container">
+            <span style="font-size:var(--text-xs);font-weight:600;color:rgba(255,255,255,0.8);text-transform:uppercase;letter-spacing:0.5px;">Your Rating:</span>
+            <div class="star-rating-group" id="starRatingGroup" role="radiogroup" aria-label="Rating out of 5 stars">
+              <button type="button" class="star-btn active" data-rating="1" title="1 Star">★</button>
+              <button type="button" class="star-btn active" data-rating="2" title="2 Stars">★</button>
+              <button type="button" class="star-btn active" data-rating="3" title="3 Stars">★</button>
+              <button type="button" class="star-btn active" data-rating="4" title="4 Stars">★</button>
+              <button type="button" class="star-btn active" data-rating="5" title="5 Stars">★</button>
+            </div>
+            <span class="star-rating-label" id="starRatingLabel">5★ Exceptional Heritage Experience!</span>
+          </div>
+
+          <!-- Input fields -->
+          <div class="feedback-input-group">
+            <div class="feedback-field">
+              <label for="reviewAuthorInput">Your Name or Alias (Optional)</label>
+              <input type="text" id="reviewAuthorInput" class="feedback-input" placeholder="e.g. Ananya Sen / Heritage Explorer" autocomplete="off" maxlength="50" />
+            </div>
+            <div class="feedback-field">
+              <label for="reviewDateInput">Date of Visit (Optional)</label>
+              <input type="text" id="reviewDateInput" class="feedback-input" placeholder="e.g. Sep 2026 or Today" autocomplete="off" />
+            </div>
+          </div>
+
+          <div class="feedback-field" style="margin-bottom:var(--space-4);">
+            <label for="reviewTextInput">Your Review, Impressions & Tips (Optional)</label>
+            <textarea id="reviewTextInput" class="feedback-textarea" placeholder="Describe the atmosphere, morning/evening light, photo angles, history, or guidance for future visitors..." maxlength="1000"></textarea>
+          </div>
+
+          <div class="feedback-actions">
+            <button type="button" class="feedback-submit-btn" id="btnSubmitReview">
+              <span>✨ Submit Feedback & Rating</span>
+            </button>
+            <div class="feedback-success-msg" id="feedbackSuccessMsg">
+              <span>🎉 Thank you! Your review and rating have been recorded.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reviews Feed -->
+        <div class="reviews-feed-title">
+          <span>Recent Visitor Reviews (<span id="reviewsCountBadge">${stats.total}</span>)</span>
+        </div>
+        <div class="reviews-list" id="siteReviewsList">
+          ${this.renderReviewsListContent(site.id)}
+        </div>
       </div>
     `;
 
     document.body.style.overflow = 'hidden';
+    this.setupLightboxReviewHandlers(site);
+  }
+
+  renderRatingSummaryContent(siteId) {
+    const stats = getMonumentRatingStats(siteId);
+    const avgNum = parseFloat(stats.average);
+    const fullStars = Math.round(avgNum);
+    const starsVisual = '★'.repeat(fullStars) + '☆'.repeat(5 - fullStars);
+
+    return `
+      <div class="rating-score-box">
+        <div class="rating-big-number">${stats.average}</div>
+        <div class="rating-stars-visual">${starsVisual}</div>
+        <div class="rating-total-count">${stats.total} visitor ratings</div>
+      </div>
+      <div class="rating-bars-container">
+        ${[5, 4, 3, 2, 1].map(stars => `
+          <div class="rating-bar-row">
+            <span class="rating-bar-label">${stars} ★</span>
+            <div class="rating-bar-track">
+              <div class="rating-bar-fill" style="width: ${stats.percentages[stars]}%;"></div>
+            </div>
+            <span class="rating-bar-pct">${stats.percentages[stars]}%</span>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  renderReviewsListContent(siteId) {
+    const reviews = getMonumentReviews(siteId);
+    if (!reviews || reviews.length === 0) {
+      return `<p style="color:rgba(255,255,255,0.5);font-style:italic;text-align:center;padding:var(--space-4);">Be the first explorer to review this monument!</p>`;
+    }
+
+    return reviews.map(r => {
+      const initial = (r.author && r.author.trim()) ? r.author.trim().charAt(0).toUpperCase() : 'H';
+      const rating = Math.min(5, Math.max(1, parseInt(r.rating) || 5));
+      const starsStr = '★'.repeat(rating) + '☆'.repeat(5 - rating);
+
+      return `
+        <div class="review-card">
+          <div class="review-card-header">
+            <div class="review-author-meta">
+              <div class="review-avatar">${initial}</div>
+              <div>
+                <span class="review-author-name">${r.author || 'Heritage Explorer'}</span>
+                ${r.verified || r.isLocalUser ? '<span class="review-verified-badge">✓ Verified</span>' : ''}
+                <div class="review-date">${r.date || 'Recent'}</div>
+              </div>
+            </div>
+            <div class="review-stars">${starsStr}</div>
+          </div>
+          ${r.text ? `<p class="review-text">${r.text}</p>` : `<p class="review-text" style="color:rgba(255,255,255,0.4);font-style:italic;">Rated ${rating} out of 5 stars</p>`}
+        </div>
+      `;
+    }).join('');
+  }
+
+  setupLightboxReviewHandlers(site) {
+    let selectedRating = 5;
+    const ratingLabels = {
+      1: '1★ Needs Attention',
+      2: '2★ Fair Experience',
+      3: '3★ Good Heritage Visit',
+      4: '4★ Very Good Experience',
+      5: '5★ Exceptional Heritage Experience!'
+    };
+
+    const starBtns = document.querySelectorAll('#starRatingGroup .star-btn');
+    const ratingLabel = document.getElementById('starRatingLabel');
+
+    const updateStarsUI = (rating) => {
+      starBtns.forEach(btn => {
+        const val = parseInt(btn.dataset.rating);
+        if (val <= rating) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+      if (ratingLabel) {
+        ratingLabel.textContent = ratingLabels[rating] || `${rating} Stars`;
+      }
+    };
+
+    starBtns.forEach(btn => {
+      btn.addEventListener('mouseenter', () => {
+        const hoverVal = parseInt(btn.dataset.rating);
+        starBtns.forEach(b => {
+          const val = parseInt(b.dataset.rating);
+          if (val <= hoverVal) {
+            b.classList.add('hovered');
+          } else {
+            b.classList.remove('hovered');
+          }
+        });
+        if (ratingLabel) {
+          ratingLabel.textContent = ratingLabels[hoverVal] || `${hoverVal} Stars`;
+        }
+      });
+
+      btn.addEventListener('mouseleave', () => {
+        starBtns.forEach(b => b.classList.remove('hovered'));
+        updateStarsUI(selectedRating);
+      });
+
+      btn.addEventListener('click', () => {
+        selectedRating = parseInt(btn.dataset.rating) || 5;
+        updateStarsUI(selectedRating);
+      });
+    });
+
+    // Submit handler
+    const btnSubmit = document.getElementById('btnSubmitReview');
+    const authorInput = document.getElementById('reviewAuthorInput');
+    const dateInput = document.getElementById('reviewDateInput');
+    const textInput = document.getElementById('reviewTextInput');
+    const successMsg = document.getElementById('feedbackSuccessMsg');
+    const summaryCard = document.getElementById('ratingSummaryCard');
+    const reviewsList = document.getElementById('siteReviewsList');
+    const countBadge = document.getElementById('reviewsCountBadge');
+    const topBadge = document.getElementById('lightboxRatingSummaryBadge');
+
+    btnSubmit?.addEventListener('click', () => {
+      const author = authorInput?.value?.trim() || 'Heritage Explorer';
+      const date = dateInput?.value?.trim() || '';
+      const text = textInput?.value?.trim() || '';
+
+      // Save review to local storage
+      const result = saveMonumentReview(site.id, {
+        author,
+        rating: selectedRating,
+        text,
+        date
+      });
+
+      // Show success feedback
+      if (successMsg) {
+        successMsg.style.display = 'inline-flex';
+        setTimeout(() => {
+          successMsg.style.display = 'none';
+        }, 4000);
+      }
+
+      // Reset text fields
+      if (textInput) textInput.value = '';
+
+      // Re-render reviews and stats in real time
+      if (summaryCard) summaryCard.innerHTML = this.renderRatingSummaryContent(site.id);
+      if (reviewsList) reviewsList.innerHTML = this.renderReviewsListContent(site.id);
+      if (countBadge) countBadge.textContent = result.stats.total;
+      if (topBadge) topBadge.textContent = `⭐ ${result.stats.average} / 5.0 (${result.stats.total} visitor reviews)`;
+
+      // Also update the gallery card rating badge on the page
+      const galleryBadge = document.getElementById(`galleryRatingBadge-${site.id}`);
+      if (galleryBadge) {
+        galleryBadge.textContent = `⭐ ${result.stats.average} (${result.stats.total})`;
+      }
+      const galleryCard = document.querySelector(`.gallery-card[data-site="${site.id}"] .gallery-card-rating`);
+      if (galleryCard) {
+        galleryCard.innerHTML = `<span>⭐</span> ${result.stats.average}`;
+      }
+    });
+
+    // Smooth scroll for top badge
+    topBadge?.addEventListener('click', (e) => {
+      e.preventDefault();
+      const section = document.getElementById('siteReviewsSection');
+      section?.scrollIntoView({ behavior: 'smooth' });
+    });
+  }
+
+  findSiteById(id) {
+    return findSiteById(id);
   }
 
   // ==================== TIMELINE ====================
@@ -1278,8 +1562,12 @@ IMPORTANT: confidence should be 0-100 based on how certain you are. Only return 
 
     grid.innerHTML = sites.map(site => {
       const bgColor = site.color || '#333';
+      const stats = getMonumentRatingStats(site.id);
       return `
         <div class="gallery-card" data-site="${site.id}">
+          <div class="gallery-card-rating">
+            <span>⭐</span> ${stats.average}
+          </div>
           <div class="gallery-card-visual" style="background: linear-gradient(135deg, ${bgColor}33, ${bgColor}11);">
             <img src="${site.image || 'https://images.unsplash.com/photo-1600100397608-2e06718a38c2?q=80&w=800&auto=format&fit=crop'}" alt="${site.name}" loading="lazy">
           </div>
@@ -1290,6 +1578,7 @@ IMPORTANT: confidence should be 0-100 based on how certain you are. Only return 
             <div class="gallery-card-badges">
               ${site.unesco ? '<span class="badge badge-unesco">UNESCO</span>' : ''}
               <span class="badge badge-category">${site.category}</span>
+              <span class="badge badge-rating" id="galleryRatingBadge-${site.id}">⭐ ${stats.average} (${stats.total})</span>
             </div>
           </div>
         </div>
