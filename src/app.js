@@ -203,9 +203,10 @@ class VirasatApp {
     btnDemo.addEventListener('click', () => this.runDemo());
     fileInput.addEventListener('change', (e) => this.handleUpload(e));
 
-    // API Key settings button
+    // API Key settings button — hide if key already set
     const btnSettings = document.getElementById('btnApiSettings');
     if (btnSettings) {
+      if (this.geminiApiKey) btnSettings.style.display = 'none';
       btnSettings.addEventListener('click', () => this.showApiKeyModal());
     }
 
@@ -661,12 +662,17 @@ IMPORTANT: confidence should be 0-100 based on how certain you are. Only return 
       const key = input.value.trim();
       this.setGeminiApiKey(key);
       const status = document.getElementById('apiKeyStatus');
+      const btn = document.getElementById('btnApiSettings');
       if (key) {
         status.textContent = '✅ API key saved successfully!';
         status.className = 'api-key-status success';
+        // Hide button and auto-close modal after a short delay
+        if (btn) btn.style.display = 'none';
+        setTimeout(() => this.hideApiKeyModal(), 1200);
       } else {
         status.textContent = '🗑️ API key removed. Demo mode active.';
         status.className = 'api-key-status error';
+        if (btn) btn.style.display = 'inline-flex';
       }
     });
 
