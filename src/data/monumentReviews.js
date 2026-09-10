@@ -472,6 +472,351 @@ const SEED_REVIEWS = {
       date: "Jul 31, 2026",
       text: "Cool sea breeze, feeding pigeons, street photographers, and historical significance where the last British troops departed India in 1948."
     }
+  ],
+  "humayuns-tomb": [
+    {
+      id: "ht-1",
+      author: "Nandini Mathur",
+      rating: 5,
+      date: "Sep 02, 2026",
+      text: "The geometry and water channels of the Charbagh garden around the red sandstone mausoleum are sublime. You can see the genesis of the Taj Mahal in its dome."
+    },
+    {
+      id: "ht-2",
+      author: "Julian Thorne",
+      rating: 5,
+      date: "Aug 17, 2026",
+      text: "Exemplary restoration work by the Aga Khan Trust. The craftsmanship of the carved marble lattice screens is stunning."
+    },
+    {
+      id: "ht-3",
+      author: "Kareem Siddiqui",
+      rating: 4,
+      date: "Jul 28, 2026",
+      text: "A serene haven of Mughal history right in the heart of Delhi. Visiting at golden hour produces wonderful reflections in the pools."
+    }
+  ],
+  "fatehpur-sikri": [
+    {
+      id: "fs-1",
+      author: "Dharmesh Rawat",
+      rating: 5,
+      date: "Aug 29, 2026",
+      text: "Standing beneath the towering Buland Darwaza is humbling. The central carved lotus pillar of Diwan-i-Khas is an architectural marvel."
+    },
+    {
+      id: "fs-2",
+      author: "Shalini Dixit",
+      rating: 5,
+      date: "Aug 11, 2026",
+      text: "The white marble tomb of Salim Chishti surrounded by red sandstone courtyards creates incredible visual contrast. Tying the wish thread was memorable."
+    },
+    {
+      id: "fs-3",
+      author: "Pierre Dubois",
+      rating: 4,
+      date: "Jul 19, 2026",
+      text: "Remarkable preservation of Emperor Akbar's fortified capital. Panch Mahal's columnar pavilions feel so airy."
+    }
+  ],
+  "kedarnath-temple": [
+    {
+      id: "kd-1",
+      author: "Rohit Semwal",
+      rating: 5,
+      date: "Sep 05, 2026",
+      text: "A truly divine spiritual pilgrimage in the lap of the mighty Himalayas. The energy inside the ancient stone sanctum defies earthly description."
+    },
+    {
+      id: "kd-2",
+      author: "Anuradha Joshi",
+      rating: 5,
+      date: "Aug 20, 2026",
+      text: "The sight of Kedarnath Peak towering above the grey stone shikhara at dawn brings tears to the eyes. An unbroken beacon of faith."
+    },
+    {
+      id: "kd-3",
+      author: "Vijay Negi",
+      rating: 5,
+      date: "Jul 25, 2026",
+      text: "Seeing Bhim Shila sitting majestically behind the temple after the 2013 miracle confirms the divine aura of this Himalayan sanctuary."
+    }
+  ],
+  "mehrangarh-fort": [
+    {
+      id: "mg-1",
+      author: "Yuvraj Rathore",
+      rating: 5,
+      date: "Aug 31, 2026",
+      text: "Rudyard Kipling was right — this fort looks like it was sculpted by Titans. The view of Jodhpur's blue rooftops from the cannon ramparts is iconic."
+    },
+    {
+      id: "mg-2",
+      author: "Emma Watson-Smith",
+      rating: 5,
+      date: "Aug 14, 2026",
+      text: "One of the best-curated palace museums in the world! The royal palanquins, turbans, and mirrored Sheesh Mahal are magnificent."
+    },
+    {
+      id: "mg-3",
+      author: "Gopal Chandak",
+      rating: 5,
+      date: "Jul 16, 2026",
+      text: "The sheer scale of the sandstone walls rising seamlessly from the rock cliff is astounding. The folk musicians at the gates set the mood."
+    }
+  ],
+  "city-palace-udaipur": [
+    {
+      id: "cp-1",
+      author: "Bhanwar Singh",
+      rating: 5,
+      date: "Sep 04, 2026",
+      text: "Mor Chowk with its 5,000 glittering glass mosaic tiles depicting dancing peacocks is sheer luxury. Overlooking Lake Pichola makes it magical."
+    },
+    {
+      id: "cp-2",
+      author: "Smita Deora",
+      rating: 5,
+      date: "Aug 19, 2026",
+      text: "A sprawling labyrinth of courtyards, marble balconies, and hanging gardens built over four centuries of Mewar royal valor."
+    },
+    {
+      id: "cp-3",
+      author: "Christoph Bauer",
+      rating: 4,
+      date: "Jul 22, 2026",
+      text: "The evening light reflections across Lake Pichola from the palace battlements are unforgettable. Great museum collection."
+    }
+  ],
+  "modhera-sun-temple": [
+    {
+      id: "ms-1",
+      author: "Jignesh Patel",
+      rating: 5,
+      date: "Aug 26, 2026",
+      text: "The geometry of Surya Kund with its 108 stepped miniature shrines is pure mathematical and architectural poetry in stone."
+    },
+    {
+      id: "ms-2",
+      author: "Shraddha Dave",
+      rating: 5,
+      date: "Aug 08, 2026",
+      text: "The 52 intricately carved pillars in the assembly hall represent the weeks of the year. Seeing the sunlight dance on the carvings is transcendent."
+    },
+    {
+      id: "ms-3",
+      author: "Hiroshi Tanaka",
+      rating: 4,
+      date: "Jul 12, 2026",
+      text: "A peaceful sanctuary of Solanki craftsmanship. The level of relief detail on the sandstone plinths is astonishing."
+    }
+  ],
+  "somnath-temple": [
+    {
+      id: "st-1",
+      author: "Hasmukh Barot",
+      rating: 5,
+      date: "Sep 03, 2026",
+      text: "Standing where the waves of the Arabian Sea wash against the holy sanctum of the first Jyotirlinga is an electrifying spiritual moment."
+    },
+    {
+      id: "st-2",
+      author: "Meenakshi Acharya",
+      rating: 5,
+      date: "Aug 16, 2026",
+      text: "The sound and light show narrated by Amitabh Bachchan against the roaring sea brings Somnath's glorious and resilient history alive."
+    },
+    {
+      id: "st-3",
+      author: "Deepak Trivedi",
+      rating: 5,
+      date: "Jul 29, 2026",
+      text: "The Baan Stambh inscription pointing an unbroken sea path straight to Antarctica demonstrates the cosmic wisdom of ancient India."
+    }
+  ],
+  "nalanda-mahavihara": [
+    {
+      id: "nl-1",
+      author: "Prof. Sudhir Sinha",
+      rating: 5,
+      date: "Aug 28, 2026",
+      text: "Walking among the 1,500-year-old brick viharas where Xuanzang, Aryabhata, and Nagarjuna debated philosophy is deeply moving. World heritage at its finest."
+    },
+    {
+      id: "nl-2",
+      author: "Tenzing Gyatso",
+      rating: 5,
+      date: "Aug 12, 2026",
+      text: "The Great Stupa of Sariputra with its multiple structural rebuilds and stucco Buddha statues is magnificent. A cradle of universal wisdom."
+    },
+    {
+      id: "nl-3",
+      author: "Dr. Catherine Bell",
+      rating: 5,
+      date: "Jul 20, 2026",
+      text: "The sheer scale of the residential university complex — accommodating 10,000 scholars — shows ancient India's monumental devotion to knowledge."
+    }
+  ],
+  "kamakhya-temple": [
+    {
+      id: "km-1",
+      author: "Bhaskar Barman",
+      rating: 5,
+      date: "Sep 01, 2026",
+      text: "Nilachal Hill radiates ancient cosmic feminine power. The underground natural spring sanctum is unlike any other sacred shrine in the world."
+    },
+    {
+      id: "km-2",
+      author: "Monojit Saikia",
+      rating: 5,
+      date: "Aug 18, 2026",
+      text: "The beehive-shaped dome and historic terracotta wall sculptures of the Koch dynasty make it an architectural and spiritual treasure of Assam."
+    },
+    {
+      id: "km-3",
+      author: "Arpita Goswami",
+      rating: 5,
+      date: "Jul 23, 2026",
+      text: "A sacred celebration of creation, life, and shakti. The panoramic view of the Brahmaputra River from the temple complex is breathtaking."
+    }
+  ],
+  "jagannath-temple-puri": [
+    {
+      id: "jp-1",
+      author: "Bijay Mohapatra",
+      rating: 5,
+      date: "Sep 06, 2026",
+      text: "Jai Jagannath! The sight of the Patitapabana flag fluttering atop the 214-foot curvilinear Kalinga spire fills the heart with pure devotion."
+    },
+    {
+      id: "jp-2",
+      author: "Sunita Tripathy",
+      rating: 5,
+      date: "Aug 22, 2026",
+      text: "The Mahaprasad from the ancient Anandabazar, cooked in earthen pots stacked over wood fire, is divine nectar. Truly unique culture."
+    },
+    {
+      id: "jp-3",
+      author: "Manoranjan Das",
+      rating: 5,
+      date: "Jul 30, 2026",
+      text: "The atmosphere during the evening aarti and changing of the sacred flag by priests climbing the sheer dome barefoot is astonishing."
+    }
+  ],
+  "gwalior-fort": [
+    {
+      id: "gw-1",
+      author: "Abhishek Tomar",
+      rating: 5,
+      date: "Aug 27, 2026",
+      text: "The turquoise blue and yellow glazed ceramic tile friezes of ducks and peacocks on Man Mandir Palace make this fortress stand apart from all others in India."
+    },
+    {
+      id: "gw-2",
+      author: "Pradeep Scindia",
+      rating: 5,
+      date: "Aug 10, 2026",
+      text: "The colossal rock-cut Jain colossi on the steep hill road and the historic Chaturbhuj Temple with the world's oldest zero inscription are legendary."
+    },
+    {
+      id: "gw-3",
+      author: "Neil Armstrong-Jones",
+      rating: 4,
+      date: "Jul 15, 2026",
+      text: "The views overlooking Gwalior city from the sandstone ramparts are panoramic. Immense history spanning Tomaras, Mughals, and Marathas."
+    }
+  ],
+  "bhimbetka-rock-shelters": [
+    {
+      id: "bb-1",
+      author: "Dr. Alok Srivastava",
+      rating: 5,
+      date: "Sep 02, 2026",
+      text: "Standing before paintings created 30,000 years ago by Stone Age ancestors is a spine-tingling connection to the dawn of humanity. A national treasure."
+    },
+    {
+      id: "bb-2",
+      author: "Reena Meshram",
+      rating: 5,
+      date: "Aug 15, 2026",
+      text: "Zoo Rock with its dozens of galloping animals drawn in mineral ochre and white lime has survived tens of millennia amidst teak forests. Unbelievable."
+    },
+    {
+      id: "bb-3",
+      author: "Hans Meier",
+      rating: 5,
+      date: "Jul 21, 2026",
+      text: "One of the most profound archaeological sites on earth. Excellent walking trails and well-protected rock shelters."
+    }
+  ],
+  "padmanabhaswamy-temple": [
+    {
+      id: "ps-1",
+      author: "Madhavan Namboodiri",
+      rating: 5,
+      date: "Aug 30, 2026",
+      text: "The majestic 18-foot reclining Anantha Shayana deity visible through three sacred doors emanates divine serenity. The 365 carved granite pillars are stunning."
+    },
+    {
+      id: "ps-2",
+      author: "Anjali Pillai",
+      rating: 5,
+      date: "Aug 13, 2026",
+      text: "A sacred sanctuary where centuries of royal Travancore devotion and Kerala temple traditions are preserved in their purest, most pristine form."
+    },
+    {
+      id: "ps-3",
+      author: "George Thomas",
+      rating: 5,
+      date: "Jul 26, 2026",
+      text: "The 100-foot multi-tier gopuram illuminated at dusk reflecting in the Padma Theertham holy pond is an unforgettable sight."
+    }
+  ],
+  "elephanta-caves": [
+    {
+      id: "ec-1",
+      author: "Ketan Sawant",
+      rating: 5,
+      date: "Sep 05, 2026",
+      text: "The 20-foot Trimurti Sadashiva statue in Cave 1 is one of the supreme achievements of Indian rock-cut art. The expression of serenity is breathtaking."
+    },
+    {
+      id: "ec-2",
+      author: "Rohan Kulkarni",
+      rating: 5,
+      date: "Aug 21, 2026",
+      text: "Taking the boat ride from Gateway of India to Gharapuri Island and walking through the basalt cave sanctuaries makes for a world-class excursion."
+    },
+    {
+      id: "ec-3",
+      author: "Valerie Moreau",
+      rating: 4,
+      date: "Jul 27, 2026",
+      text: "The Nataraja and Ardhanarishvara relief carvings in solid rock have so much dynamic movement. UNESCO World Heritage well deserved."
+    }
+  ],
+  "belur-chennakeshava": [
+    {
+      id: "bc-1",
+      author: "Somashekar Gowda",
+      rating: 5,
+      date: "Sep 04, 2026",
+      text: "The soapstone filigree carvings are so incredibly delicate you can literally pass a silk thread behind the jewelry of the dancing Madanika bracket figures!"
+    },
+    {
+      id: "bc-2",
+      author: "Kavya Hegde",
+      rating: 5,
+      date: "Aug 19, 2026",
+      text: "Took 103 years to build across three generations of master Hoysala sculptors. The 42-foot gravity pillar standing without foundation is an engineering marvel."
+    },
+    {
+      id: "bc-3",
+      author: "Liam O'Connor",
+      rating: 5,
+      date: "Jul 31, 2026",
+      text: "Easily among the finest, most intricate stone temples on earth. Deserves its newly awarded UNESCO World Heritage status!"
+    }
   ]
 };
 

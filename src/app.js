@@ -508,7 +508,22 @@ class VirasatApp {
       { id: 'ajanta-caves', keywords: ['ajanta', 'caves', 'fresco'] },
       { id: 'ellora-caves', keywords: ['ellora', 'kailash', 'kailasa'] },
       { id: 'rani-ki-vav', keywords: ['rani', 'vav', 'stepwell', 'patan'] },
-      { id: 'mahabalipuram', keywords: ['mahabalipuram', 'mamallapuram', 'shore temple', 'pancha rathas'] }
+      { id: 'mahabalipuram', keywords: ['mahabalipuram', 'mamallapuram', 'shore temple', 'pancha rathas'] },
+      { id: 'humayuns-tomb', keywords: ['humayun', 'humayun tomb', 'nizamuddin'] },
+      { id: 'fatehpur-sikri', keywords: ['fatehpur', 'sikri', 'buland darwaza', 'salim chishti'] },
+      { id: 'kedarnath-temple', keywords: ['kedarnath', 'kedar', 'rudraprayag', 'garhwal'] },
+      { id: 'mehrangarh-fort', keywords: ['mehrangarh', 'jodhpur fort', 'rao jodha'] },
+      { id: 'city-palace-udaipur', keywords: ['city palace udaipur', 'udaipur palace', 'pichola'] },
+      { id: 'modhera-sun-temple', keywords: ['modhera', 'sun temple modhera', 'surya kund'] },
+      { id: 'somnath-temple', keywords: ['somnath', 'prabhas patan', 'veraval'] },
+      { id: 'nalanda-mahavihara', keywords: ['nalanda', 'mahavihara', 'sariputra'] },
+      { id: 'kamakhya-temple', keywords: ['kamakhya', 'nilachal', 'guwahati temple'] },
+      { id: 'jagannath-temple-puri', keywords: ['jagannath', 'puri', 'puri temple', 'ratha yatra'] },
+      { id: 'gwalior-fort', keywords: ['gwalior', 'gwalior fort', 'man mandir'] },
+      { id: 'bhimbetka-rock-shelters', keywords: ['bhimbetka', 'rock shelters', 'zoo rock'] },
+      { id: 'padmanabhaswamy-temple', keywords: ['padmanabhaswamy', 'anantha', 'trivandrum temple', 'thiruvananthapuram'] },
+      { id: 'elephanta-caves', keywords: ['elephanta', 'trimurti', 'gharapuri'] },
+      { id: 'belur-chennakeshava', keywords: ['belur', 'chennakeshava', 'hoysala', 'madanika'] }
     ];
 
     for (const item of siteKeywordMap) {

@@ -13,7 +13,7 @@ A comprehensive cultural heritage innovation platform combining **Google Gemini 
 - 🛍️ **Authentic GI Products Showcase** — Catalog of India's Geographical Indication (GI) tagged crafts, textiles, and artifacts (Pashmina, Banarasi Silk, Channapatna Toys, etc.) with exact verified prices (all strictly under ₹10,000) and artisan provenance.
 - 🗺️ **Interactive India Map** — Click any state to explore its folk dances, classical music, culinary traditions, festivals, and indigenous arts.
 - ⏳ **Cultural Timeline** — Interactive historical voyage across 9 eras, from the Indus Valley Civilization to Modern India.
-- 🎨 **Heritage Gallery** — Curated showcase of iconic UNESCO World Heritage sites and monuments with high-resolution imagery and architectural breakdowns.
+- 🎨 **Heritage Gallery** — Curated showcase of 35 iconic UNESCO World Heritage sites and national monuments with high-resolution imagery, verified GPS metadata, and architectural breakdowns.
 - 🧩 **Heritage Quiz** — 52 questions across 5 categories with real-time scoring, cultural mastery badges, and celebratory animations.
 - 📸 **Dataset Collector (`image-collector.html`)** — Dedicated utility for collecting, curating, and exporting image datasets for machine learning training.
 - 📊 **Architecture & Flow Visualizer (`diagrams.html`)** — Interactive visual documentation of system workflows, data pipelines, and component architecture.
@@ -57,7 +57,8 @@ VirasatAI/
     │   ├── variables.css       # Design tokens, color palette, glassmorphism vars
     │   └── index.css           # Complete responsive stylesheet & AR HUD styles
     └── data/
-        ├── heritageSites.js    # 20 heritage sites with GPS coordinates, history & stories
+        ├── heritageSites.js    # 35 heritage sites with verified GPS coordinates, history & stories
+        ├── monumentReviews.js  # Visitor feedback, 1-5 star ratings & dynamic calculations
         ├── giProducts.js       # Authentic GI products with verified pricing (< ₹10,000)
         ├── indianStates.js     # Cultural database across 29 Indian states & UTs
         ├── quizQuestions.js    # 52 heritage trivia quiz questions across 5 categories

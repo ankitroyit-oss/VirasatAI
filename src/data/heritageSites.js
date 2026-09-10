@@ -717,6 +717,524 @@ export const heritageSites = [
     emoji: "🚢",
     color: "#F39C12",
     tags: ["colonial", "mumbai", "arch", "harbor", "british"]
+  },
+  {
+    id: "humayuns-tomb",
+    name: "Humayun's Tomb",
+    image: "https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&q=80&w=800",
+    nameHindi: "हुमायूँ का मक़बरा",
+    location: { state: "Delhi", city: "New Delhi", coordinates: [28.5933, 77.2507] },
+    category: "monument",
+    period: "Mughal Era (1565–1572)",
+    unesco: true,
+    significance: "The first grand garden tomb on the Indian subcontinent, direct architectural predecessor to the Taj Mahal",
+    history: "Commissioned by Humayun's first wife and chief consort, Empress Bega Begum (also known as Haji Begum), in 1565, and designed by Persian architect Mirak Mirza Ghiyas. It introduced the monumental charbagh garden layout to Mughal architecture.",
+    architecture: "Splendid Indo-Persian architecture featuring a double dome clad in white marble, set on a terraced platform made of red sandstone with white and black marble inlays.",
+    stories: [
+      "Served as a refuge for the last Mughal Emperor Bahadur Shah Zafar during the 1857 rebellion before his capture by British forces.",
+      "More than 150 members of the Mughal royal family are buried within the complex, earning it the moniker 'Dormitory of the House of Timur'."
+    ],
+    cuisine: [
+      { name: "Nihari", description: "Slow-cooked spiced stew of meat infused with fragrant long pepper and mace" },
+      { name: "Shahi Tukda", description: "Mughal royal bread pudding soaked in saffron-infused milk syrup topped with silver leaf" }
+    ],
+    artisans: [
+      { craft: "Dilli Meenakari", description: "Enameling metal jewelry and silverware with vivid mineral glazes" }
+    ],
+    festivals: ["Jahan-e-Khusrau — Sufi music festival celebrating Amir Khusrau's musical poetry in Delhi"],
+    visitInfo: { bestTime: "October to March", timings: "6:00 AM to 6:00 PM daily" },
+    funFacts: [
+      "It was the first structure in India to employ the Persian double dome technique",
+      "Restored in a landmark partnership with the Aga Khan Trust for Culture in 2013",
+      "UNESCO World Heritage Site designated in 1993"
+    ],
+    emoji: "🏛️",
+    color: "#C0392B",
+    tags: ["mughal", "delhi", "unesco", "tomb", "garden"]
+  },
+  {
+    id: "fatehpur-sikri",
+    name: "Fatehpur Sikri",
+    image: "https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?auto=format&fit=crop&q=80&w=800",
+    nameHindi: "फ़तेहपुर सीकरी",
+    location: { state: "Uttar Pradesh", city: "Agra District", coordinates: [27.0945, 77.6679] },
+    category: "monument",
+    period: "Mughal Era (1571–1585)",
+    unesco: true,
+    significance: "Emperor Akbar's fortified imperial capital city and site of the colossal Buland Darwaza",
+    history: "Founded in 1569 by Emperor Akbar in honor of the revered Sufi saint Sheikh Salim Chishti, who predicted the birth of his heir, Jahangir. It served as the capital of the Mughal Empire from 1571 to 1585 until water scarcity led to its abandonment.",
+    architecture: "Red sandstone city blending Persian, Hindu, and Jain architectural motifs. Features Buland Darwaza (54m high gate), Panch Mahal, Diwan-i-Khas with its iconic carved central lotus pillar, and the white marble Tomb of Salim Chishti.",
+    stories: [
+      "Buland Darwaza was erected in 1601 to commemorate Akbar's historic victory over Gujarat.",
+      "Tradition holds that tying a red thread at the marble screens of Salim Chishti's tomb fulfills heartfelt wishes."
+    ],
+    cuisine: [
+      { name: "Fatehpuri Khatai", description: "Crisp spiced cardamom butter biscuits baked in traditional bhattis" },
+      { name: "Dal Baati Churma", description: "Baked wheat balls served with rich five-lentil curry and sweetened crushed wheat" }
+    ],
+    artisans: [
+      { craft: "Stone Jali Carving", description: "Intricate perforated sandstone latticework passed down through generations of stone masons" }
+    ],
+    festivals: ["Urs of Sheikh Salim Chishti — Annual Sufi pilgrimage gathering featuring qawwali recitations"],
+    visitInfo: { bestTime: "October to March", timings: "Sunrise to Sunset (Daily)" },
+    funFacts: [
+      "Buland Darwaza is the highest gateway in the world at 54 meters",
+      "Akbar devised Din-i-Ilahi, a syncretic religion, inside the Ibadat Khana here",
+      "UNESCO World Heritage Site since 1986"
+    ],
+    emoji: "🚪",
+    color: "#D35400",
+    tags: ["akbar", "unesco", "sandstone", "sufi", "gateway"]
+  },
+  {
+    id: "kedarnath-temple",
+    name: "Kedarnath Temple",
+    image: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&q=80&w=800",
+    nameHindi: "केदारनाथ मंदिर",
+    location: { state: "Uttarakhand", city: "Rudraprayag", coordinates: [30.7352, 79.0669] },
+    category: "temple",
+    period: "8th Century CE (Adi Shankara Era)",
+    unesco: false,
+    significance: "One of the twelve sacred Jyotirlingas and the highest of the Panch Kedar temples, nestled in the snow-capped Garhwal Himalayas at 3,583m",
+    history: "Attributed in legends to the Pandavas of Mahabharata and historically revived in the 8th century CE by Adi Shankaracharya, who attained Mahasamadhi behind the temple. Built from massive interlocking grey granite slabs that survived harsh alpine weather and glacial floods for over a millennium.",
+    architecture: "Traditional Katyuri / Himalayan stone temple style built without mortar, using interlocking stone tenons. Features a conical triangular lingam sanctum, a pillared sabha mandapa, and a large stone Nandi bull sentinel at the entrance.",
+    stories: [
+      "Legend says the Pandavas sought Shiva's redemption after Kurukshetra; Shiva assumed the form of a bull, diving into the earth with his hump appearing at Kedarnath.",
+      "During the devastating 2013 flash flood, a giant boulder (Bhim Shila) rolled down and stopped right behind the temple, diverting floodwaters and shielding the sanctum from destruction."
+    ],
+    cuisine: [
+      { name: "Singori", description: "Sweet made from condensed milk (khoya) wrapped in fragrant Maalu leaves" },
+      { name: "Garhwali Kafuli", description: "Nutritious spinach and fenugreek curry cooked in iron kadhai with hill spices" }
+    ],
+    artisans: [
+      { craft: "Uttarakhand Ringal Bamboo Craft", description: "Woven hill baskets and spiritual artefacts made from alpine dwarf bamboo" }
+    ],
+    festivals: ["Badri-Kedar Utsav — Celebrated in June showcasing classical devotional dance and hill folk music", "Opening of the Kapat (Akshaya Tritiya)"],
+    visitInfo: { bestTime: "May to June & September to October", timings: "4:00 AM to 9:00 PM (Closed during winter snows)" },
+    funFacts: [
+      "Stands at an altitude of 3,583 meters (11,755 ft) above sea level",
+      "Remains buried under deep snow for 6 months each winter, during which the deity is worshipped at Ukhimath",
+      "Surrounded on three sides by snow-clad Kedarnath, Kedar Dome, and Bharatkhunta mountain peaks"
+    ],
+    emoji: "🏔️",
+    color: "#3498DB",
+    tags: ["jyotirlinga", "himalayas", "shiva", "chardham", "uttarakhand"]
+  },
+  {
+    id: "mehrangarh-fort",
+    name: "Mehrangarh Fort",
+    image: "https://images.unsplash.com/photo-1599661046827-dacff0c0f09a?auto=format&fit=crop&q=80&w=800",
+    nameHindi: "मेहरानगढ़ क़िला",
+    location: { state: "Rajasthan", city: "Jodhpur", coordinates: [26.2978, 73.0185] },
+    category: "fort",
+    period: "Rathore Dynasty (1459 onwards)",
+    unesco: false,
+    significance: "One of India's largest and most formidable hill fortresses, towering 122 meters over Jodhpur's blue city",
+    history: "Built in 1459 by Rao Jodha, founder of Jodhpur. The fort has seven colossal gates, including Jai Pol (Gate of Victory) erected by Maharaja Man Singh in 1806 to celebrate victories over Bikaner and Jaipur armies.",
+    architecture: "Towering cliff-face sandstone fortress with walls up to 36 meters high and 21 meters wide. Houses breathtaking royal palaces including Sheesh Mahal, Phool Mahal, and Moti Mahal, featuring intricate pierced sandstone jali screens.",
+    stories: [
+      "Rudyard Kipling described it as 'a palace that might have been built by Titans and colored by the morning sun'.",
+      "Cannonball scars from 19th-century battles can still be seen clearly on the second gate, Loha Pol."
+    ],
+    cuisine: [
+      { name: "Mirchi Vada", description: "Spicy potato-stuffed Bhavnagri green peppers deep-fried in gram flour batter" },
+      { name: "Mawa Kachori", description: "Crisp puffed pastry stuffed with sweetened khoya, nuts, and dipped in saffron syrup" }
+    ],
+    artisans: [
+      { craft: "Jodhpur Leather & Mojari", description: "Handcrafted embroidered camel leather footwear" },
+      { craft: "Bandhani Tie-Dye", description: "Intricate tie-dyed textiles produced by master dyers in the old city" }
+    ],
+    festivals: ["Rajasthan International Folk Festival (RIFF) — Renowned global folk music gathering held annually inside the fort courtyards", "Marwar Festival"],
+    visitInfo: { bestTime: "October to March", timings: "9:00 AM to 5:00 PM daily" },
+    funFacts: [
+      "Perched atop an isolated perpendicular cliff called Bhakurcheeria (the mountain of birds)",
+      "Houses one of the finest museums of royal palanquins, turbans, and Mughal armaments in India",
+      "Featured in Hollywood films including 'The Dark Knight Rises'"
+    ],
+    emoji: "🏰",
+    color: "#E67E22",
+    tags: ["jodhpur", "rajasthan", "fort", "rathore", "bluecity"]
+  },
+  {
+    id: "city-palace-udaipur",
+    name: "City Palace Udaipur",
+    image: "https://images.unsplash.com/photo-1615836245337-f5b9b2303f10?auto=format&fit=crop&q=80&w=800",
+    nameHindi: "सिटी पैलेस उदयपुर",
+    location: { state: "Rajasthan", city: "Udaipur", coordinates: [24.5764, 73.6835] },
+    category: "fort",
+    period: "Mewar Dynasty (1559–1900s)",
+    unesco: false,
+    significance: "The largest royal palace complex in Rajasthan, perched majestically on the east bank of Lake Pichola",
+    history: "Initiated in 1559 by Maharana Udai Singh II when he shifted his capital from Chittorgarh to Udaipur. Subsequent Maharanas over 400 years contributed to its construction, resulting in a cohesive palace wonder.",
+    architecture: "Flaming blend of Rajasthani Rajput and Mughal architecture. Built completely of granite and marble, featuring cupolas, domes, arches, mirrored walls, marble inlays, and the world-famous Mor Chowk (Peacock Courtyard) with three relief peacocks decorated with 5,000 glass mosaic tiles.",
+    stories: [
+      "A hermetic sage, Goswami Prem Giri, advised Maharana Udai Singh to construct the palace on this exact ridge overlooking Lake Pichola, assuring him that Mewar would remain unconquered here.",
+      "Houses the royal silver howdah and armour worn by Maharana Pratap and his legendary warhorse Chetak."
+    ],
+    cuisine: [
+      { name: "Gatte ki Sabzi", description: "Gram flour dumplings simmered in rich spiced yogurt gravy" },
+      { name: "Ker Sangri", description: "Desert berry and wild bean stir-fry seasoned with dry mango powder" }
+    ],
+    artisans: [
+      { craft: "Mewar Miniature Painting", description: "Fine paintbrush art depicting royal durbars and flora using natural stone pigments on handmade paper" },
+      { craft: "Pichwai Painting", description: "Devotional cloth paintings celebrating Shrinathji" }
+    ],
+    festivals: ["Mewar Festival — Spring cultural extravaganza with royal processions to Gangaur Ghat", "Jal Jhulni Ekadashi"],
+    visitInfo: { bestTime: "September to March", timings: "9:00 AM to 5:30 PM daily" },
+    funFacts: [
+      "The palace facade extends 244 meters in length and 30.4 meters in height",
+      "Its interconnected rooms and narrow staircases were strategically designed to confuse invading armies",
+      "Provided the backdrop for the James Bond film 'Octopussy'"
+    ],
+    emoji: "👑",
+    color: "#F1C40F",
+    tags: ["udaipur", "mewar", "palace", "lakepichola", "rajasthan"]
+  },
+  {
+    id: "modhera-sun-temple",
+    name: "Sun Temple Modhera",
+    image: "https://images.unsplash.com/photo-1609766857041-ed402ea8069a?auto=format&fit=crop&q=80&w=800",
+    nameHindi: "मोढेरा सूर्य मंदिर",
+    location: { state: "Gujarat", city: "Mehsana District", coordinates: [23.5835, 72.1331] },
+    category: "temple",
+    period: "Solanki Dynasty (1026–1027 CE)",
+    unesco: false,
+    significance: "Masterpiece of Solanki temple architecture with an ornate subterranean reservoir (Surya Kund)",
+    history: "Built in 1026–1027 CE during the reign of King Bhima I of the Solanki (Chalukya) dynasty on the banks of the sacred Pushpavati River. Dedicated to the solar deity Surya, designed so the equinox sun shone directly onto the idol's jewel-encrusted forehead.",
+    architecture: "Maru-Gurjara style consisting of three separate axial components: the Guda Mandapa (inner sanctum), the detached Sabhamandapa (pillared hall with 52 intricately carved columns), and the Surya Kund (stepped water tank featuring 108 miniature shrines).",
+    stories: [
+      "On equinox days (March 21 and September 23), the first solar rays penetrate through the carved doorway to illuminate the sanctum precisely.",
+      "No daily puja is performed here today, preserving the monument as an archaeological architectural treasure."
+    ],
+    cuisine: [
+      { name: "Handvo", description: "Savory fermented vegetable lentil cake topped with sesame and mustard seeds" },
+      { name: "Gujarati Dhokla", description: "Steamed fluffy savory chickpea cakes garnished with fresh coriander and green chilies" }
+    ],
+    artisans: [
+      { craft: "Patan Patola", description: "Double-ikat silk weaving from the neighboring historic town of Patan" }
+    ],
+    festivals: ["Modhera Dance Festival (Uttarardh Mahotsav) — 3-day classical dance festival held every January against the floodlit temple backdrop"],
+    visitInfo: { bestTime: "October to March", timings: "7:00 AM to 6:00 PM daily" },
+    funFacts: [
+      "Built without mortar, using precisely interlocked dry stone masonry",
+      "The 52 pillars of the Sabhamandapa represent the 52 weeks of the solar year",
+      "The Surya Kund features 108 miniature shrines dedicated to various deities along its stepped terraces"
+    ],
+    emoji: "☀️",
+    color: "#E67E22",
+    tags: ["suntemple", "gujarat", "solanki", "suryakund", "architecture"]
+  },
+  {
+    id: "somnath-temple",
+    name: "Somnath Temple",
+    image: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&q=80&w=800",
+    nameHindi: "सोमनाथ मंदिर",
+    location: { state: "Gujarat", city: "Prabhas Patan, Veraval", coordinates: [20.8880, 70.4013] },
+    category: "temple",
+    period: "Ancient / Reconstructed (1951)",
+    unesco: false,
+    significance: "The first among the twelve holy Jyotirlinga shrines of Lord Shiva, situated at the confluence of the Arabian Sea",
+    history: "Known as 'The Shrine Eternal', Somnath has a legendary history of resilience. Destroyed and rebuilt multiple times across two millennia, the present temple was reconstructed in the Chalukyan style after Indian Independence, spearheaded by Sardar Vallabhbhai Patel, and inaugurated in May 1951 by President Dr. Rajendra Prasad.",
+    architecture: "Built in the Chalukya / Kailash Mahameru Prasad style using creamy sandstone. The main shikhara rises 46 meters, topped with a 10-tonne kalash and a 27-foot flag pole. Features the famous Baan Stambh (Arrow Pillar) pointing towards Antarctica.",
+    stories: [
+      "The Baan Stambh bears an inscription stating that an uninterrupted water line exists between this point and the South Pole with no landmass in between — an astonishing feat of ancient geographic navigation.",
+      "Legend says the Moon god (Chandra / Soma) built the original golden temple after Lord Shiva relieved him of Prajapati Daksha's curse."
+    ],
+    cuisine: [
+      { name: "Kathiyawadi Sev Tameta", description: "Spicy sweet-and-sour tomato curry topped with crispy gram flour sev" },
+      { name: "Rotla & Ringna no Olo", description: "Rustic pearl-millet flatbread served with roasted spiced eggplant mash and fresh white butter" }
+    ],
+    artisans: [
+      { craft: "Bandhani & Brass Inlay", description: "Saurashtra brass craftsmanship and colorful tie-dye textiles" }
+    ],
+    festivals: ["Maha Shivratri — Grand festival with tens of thousands of pilgrims, sea prayers, and chariot processions", "Kartik Purnima Fair"],
+    visitInfo: { bestTime: "October to March", timings: "6:00 AM to 10:00 PM (Aarti at 7 AM, 12 PM, 7 PM)" },
+    funFacts: [
+      "No landmass exists in a straight line southward between Somnath and Antarctica",
+      "The temple's evening sound and light show is narrated by Bollywood icon Amitabh Bachchan",
+      "Over 100,000 pilgrims visit during the annual Kartik Purnima fair"
+    ],
+    emoji: "🔱",
+    color: "#F39C12",
+    tags: ["jyotirlinga", "shiva", "gujarat", "coastal", "sacred"]
+  },
+  {
+    id: "nalanda-mahavihara",
+    name: "Nalanda Mahavihara",
+    image: "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&q=80&w=800",
+    nameHindi: "नालंदा महाविहार",
+    location: { state: "Bihar", city: "Nalanda District", coordinates: [25.1357, 85.4450] },
+    category: "other",
+    period: "Gupta & Pala Dynasties (5th–12th Century CE)",
+    unesco: true,
+    significance: "The world's first major residential university and ancient global center of Buddhist learning",
+    history: "Flourished from the 5th century CE to 1197 CE under the patronage of the Gupta emperors and King Harsha of Kannauj. It accommodated 10,000 students and 2,000 teachers from across Asia including China, Korea, Japan, Tibet, and Persia. Chinese traveler Xuanzang studied and taught here for five years.",
+    architecture: "Extensive red brick archaeological ruins spanning 12 hectares, featuring 11 monasteries (viharas) and 6 majestic brick temples (chaityas). The Great Stupa of Sariputra (Temple No. 3) with its terraced flights of stairs and sculpted stucco niches is the iconic centerpiece.",
+    stories: [
+      "The legendary library complex, Dharmaganja, housed hundreds of thousands of handwritten manuscripts across three multi-story buildings named Ratnasagara, Ratnodadhi, and Ratnaranjaka.",
+      "Historical chronicles record that when invaders burned the library in 1197 CE, the smoke and burning manuscripts darkened the sky for three full months."
+    ],
+    cuisine: [
+      { name: "Litti Chokha", description: "Roasted whole-wheat flour balls stuffed with spiced roasted sattu, dipped in pure ghee with roasted eggplant-potato mash" },
+      { name: "Khaja of Silao", description: "Layered crispy wafer-thin sweet pastry with GI tag status from neighboring Silao" }
+    ],
+    artisans: [
+      { craft: "Madhubani (Mithila) Art", description: "Ancient folk paintings created using twigs, fingers, and natural plant dyes" },
+      { craft: "Sikki Grass Craft", description: "Golden wild grass weaving into artistic baskets and folk deities" }
+    ],
+    festivals: ["Nalanda Mahotsav — 3-day cultural and music festival held every autumn celebrating Bihar's heritage"],
+    visitInfo: { bestTime: "October to March", timings: "9:00 AM to 5:00 PM daily" },
+    funFacts: [
+      "Admissions were famously selective: candidates had to debate the gatekeeper, and only 20% were admitted",
+      "Scholars included Aryabhata (who invented zero), Nagarjuna, and Dharmakirti",
+      "Inscribed on the UNESCO World Heritage list in 2016"
+    ],
+    emoji: "📜",
+    color: "#8E44AD",
+    tags: ["nalanda", "bihar", "unesco", "buddhist", "university"]
+  },
+  {
+    id: "kamakhya-temple",
+    name: "Kamakhya Temple",
+    image: "https://images.unsplash.com/photo-1598890777032-bde13fbe3493?auto=format&fit=crop&q=80&w=800",
+    nameHindi: "कामाख्या मंदिर",
+    location: { state: "Assam", city: "Guwahati", coordinates: [26.1664, 91.7054] },
+    category: "temple",
+    period: "Koch Dynasty Rebuilt (1565 CE)",
+    unesco: false,
+    significance: "One of the oldest and most revered of the 51 Shakti Peethas, celebrating divine feminine power atop Nilachal Hill",
+    history: "Ancient temple complex where, according to Hindu mythology, the yoni (creative womb) of Goddess Sati fell after her self-immolation. Reconstructed in 1565 CE by King Naranarayan of the Koch dynasty after destruction. The sanctum contains a natural stone yoni fed by a perennial underground natural spring.",
+    architecture: "Distinguished by the unique Nilachal architectural style, featuring a beehive-shaped dome (shikhara) resting on a cruciform base. Sculptured panels on the exterior walls depict Chamunda, Ganesha, and Hindu pantheon deities.",
+    stories: [
+      "During the annual Ambubachi Mela in June, the temple doors are closed for three days to commemorate the Mother Earth's annual fertility cycle.",
+      "The red-hued holy spring water (Rakta Bastra cloth) distributed after the festival is believed to bring immense spiritual blessings."
+    ],
+    cuisine: [
+      { name: "Assamese Khaar", description: "Traditional starter prepared using raw papaya, pulses, and sun-dried banana peel alkaline ash" },
+      { name: "Pitha & Laru", description: "Handcrafted sticky rice rolls stuffed with grated coconut and date palm jaggery" }
+    ],
+    artisans: [
+      { craft: "Assam Muga Silk Weaving", description: "Naturally golden shimmering wild silk woven into elegant Mekhela Sador garments" },
+      { craft: "Assam Cane & Bamboo Craft", description: "Intricately carved Jaapi hats and bamboo artifacts" }
+    ],
+    festivals: ["Ambubachi Mela — The largest tantric and spiritual congregation in eastern India, attracting half a million pilgrims each monsoon", "Durga Puja & Manasha Puja"],
+    visitInfo: { bestTime: "October to April", timings: "5:30 AM to 1:00 PM & 2:30 PM to 6:00 PM daily" },
+    funFacts: [
+      "Has no idol inside the inner sanctum, only a natural bedrock cleft nourished by a natural spring",
+      "Considered the epicenter of ancient Kulachara Tantra and Shakti worship in India",
+      "Offers panoramic views over the mighty Brahmaputra river from Nilachal Hill"
+    ],
+    emoji: "🌺",
+    color: "#C0392B",
+    tags: ["assam", "shakti", "shaktipeetha", "kamakhya", "brahmaputra"]
+  },
+  {
+    id: "jagannath-temple-puri",
+    name: "Jagannath Temple Puri",
+    image: "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&q=80&w=800",
+    nameHindi: "जगन्नाथ मंदिर पुरी",
+    location: { state: "Odisha", city: "Puri", coordinates: [19.8049, 85.8179] },
+    category: "temple",
+    period: "Eastern Ganga Dynasty (1161 CE)",
+    unesco: false,
+    significance: "Sacred Char Dham pilgrimage shrine and epicenter of the world-famous annual Ratha Yatra (Chariot Festival)",
+    history: "Constructed in the 12th century CE by King Anantavarman Chodaganga Deva of the Eastern Ganga dynasty. Dedicated to Lord Jagannath (a form of Vishnu), along with his siblings Balabhadra and Subhadra, carved uniquely from sacred neem logs (Daru).",
+    architecture: "Towering Kalinga architectural triumph. The main curvilinear spire (Bada Deula) reaches 65 meters in height, topped with the legendary Neela Chakra (eight-spoked sacred discus) and the Patitapabana flag. Features the world's largest traditional wood-fired temple kitchen (Rosaghara).",
+    stories: [
+      "The Patitapabana flag atop the 65-meter dome always flutters in the opposite direction of the prevailing sea breeze.",
+      "Every day, a brave priest climbs barefoot to the summit of the 214-foot dome without safety ropes to change the sacred flag, a 1,000-year-old unbroken tradition."
+    ],
+    cuisine: [
+      { name: "Mahaprasad (Chhappan Bhog)", description: "56 sacred dishes cooked in 7 earthen pots stacked one above the other over a single clay hearth" },
+      { name: "Khaja", description: "Crisp layered golden pastry delicacy prepared and offered in the temple precincts" }
+    ],
+    artisans: [
+      { craft: "Pattachitra Painting", description: "Cloth-based scroll painting of Jagannath stories produced in Raghurajpur heritage village" },
+      { craft: "Pipili Appliqué Work", description: "Colorful stitched fabric art used on temple canopies and chariots" }
+    ],
+    festivals: ["Puri Ratha Yatra — Colossal chariot festival where 3 giant chariots are pulled by millions along Bada Danda boulevard", "Chandan Yatra", "Snana Yatra"],
+    visitInfo: { bestTime: "October to February", timings: "5:00 AM to 11:00 PM daily (Non-Hindus can view from Raghunandan Library rooftop)" },
+    funFacts: [
+      "No birds or airplanes fly directly above the temple dome",
+      "The shadow of the main temple structure is never cast on the ground at any time of day",
+      "The world's largest kitchen cooks fresh holy meals for up to 100,000 devotees daily"
+    ],
+    emoji: "🚩",
+    color: "#E74C3C",
+    tags: ["puri", "jagannath", "rathayatra", "odisha", "chardham"]
+  },
+  {
+    id: "gwalior-fort",
+    name: "Gwalior Fort",
+    image: "https://images.unsplash.com/photo-1609766857041-ed402ea8069a?auto=format&fit=crop&q=80&w=800",
+    nameHindi: "ग्वालियर क़िला",
+    location: { state: "Madhya Pradesh", city: "Gwalior", coordinates: [26.2307, 78.1695] },
+    category: "fort",
+    period: "Tomara Dynasty & Beyond (8th–16th Century)",
+    unesco: false,
+    significance: "Described by Mughal Emperor Babur as 'The pearl amongst kingdoms in Hind', reigning high on an isolated sandstone hill",
+    history: "A hilltop fortress built in the 8th century by Suraj Sen and transformed into an artistic marvel under Raja Man Singh Tomar in the 15th century. It later saw action under Mughals, Marathas, and Scindias, and was a key bastion during the 1858 Indian Rebellion where Rani Lakshmibai of Jhansi fought heroically.",
+    architecture: "Sprawls 3 km in length with defensive battlements and turquoise blue-and-yellow glazed tile friezes depicting ducks, elephants, and peacocks along the facade of the Man Mandir Palace. Houses Teli ka Mandir, Sas Bahu Temples, and colossal rock-cut Jain Tirthankara colossi carved into Gopachal hill cliffs.",
+    stories: [
+      "The legendary musician Tansen, one of Akbar's Navratnas, learned and composed his ragas in Gwalior and is buried nearby.",
+      "The colossal 57-foot seated rock-cut statue of Jain Tirthankara Rishabhanatha survived multiple artillery bombardments."
+    ],
+    cuisine: [
+      { name: "Gwalior Morena Gajak", description: "Crisp sesame and jaggery/sugar sweet beaten thin by hand, famous across India" },
+      { name: "Bedai & Aloo Sabzi", description: "Puffed deep-fried lentil puris served with fiery potato curry and spicy hing pickle" }
+    ],
+    artisans: [
+      { craft: "Chanderi Fabric", description: "Lightweight sheer silk-cotton sarees with gold zari borders from nearby Chanderi" }
+    ],
+    festivals: ["Tansen Music Festival — Celebrated every December near Tansen's tomb with legendary Indian classical musicians", "Gwalior Trade Fair"],
+    visitInfo: { bestTime: "October to March", timings: "6:00 AM to 5:30 PM daily" },
+    funFacts: [
+      "The oldest recorded inscription of the number zero ('0') as a numerical digit in India was found inside the small Chaturbhuj Temple here",
+      "The Man Mandir Palace features subterranean acoustic echo chambers and prisons",
+      "Features 11 colossal Jain rock-cut statues carved directly into the cliff-face"
+    ],
+    emoji: "🛡️",
+    color: "#2980B9",
+    tags: ["gwalior", "madhyapradesh", "fort", "tomar", "zero"]
+  },
+  {
+    id: "bhimbetka-rock-shelters",
+    name: "Bhimbetka Rock Shelters",
+    image: "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&q=80&w=800",
+    nameHindi: "भीमबेटका रॉक शेल्टर",
+    location: { state: "Madhya Pradesh", city: "Raisen District", coordinates: [22.9372, 77.6128] },
+    category: "cave",
+    period: "Paleolithic & Mesolithic (100,000 BCE onwards)",
+    unesco: true,
+    significance: "Oldest known human art in India: over 750 prehistoric sandstone rock shelters spanning from the Stone Age to historic times",
+    history: "Discovered accidentally in 1957 by Indian archaeologist Dr. Vishnu Shridhar Wakankar when traveling by train. The paintings date back up to 30,000 years, depicting hunting scenes, dancing, horses, and ceremonial rites made with mineral ochre, manganese, and plant pigments that bound with the porous sandstone.",
+    architecture: "Natural massive sandstone rock formations sculpted by wind and rain into shelters, caves, and towering monoliths amidst dense teak forests in the Vindhya mountain range.",
+    stories: [
+      "Named 'Bhimbetka' (meaning 'Seat of Bhima'), derived from the Mahabharata hero Bhima who is believed to have rested in these caves.",
+      "The 'Zoo Rock' shelter contains 452 figures of animals including bison, sambar, wild boars, and rhinoceroses drawn by generations of prehistoric artists."
+    ],
+    cuisine: [
+      { name: "Dal Bafla", description: "Wheat dough balls boiled then roasted on cow-dung embers, crushed and drowned in pure ghee" },
+      { name: "Bhopali Gosht Korma", description: "Rich slow-cooked mutton stew with roasted spices and yogurt gravy" }
+    ],
+    artisans: [
+      { craft: "Gond Tribal Art", description: "Vibrant pointillism and line drawings depicting forest wildlife and folk mythologies" },
+      { craft: "Dhokra Bell Metal", description: "Ancient lost-wax bronze casting technique" }
+    ],
+    festivals: ["Bhimbetka Prehistoric Cultural Festival — Winter celebration of tribal arts and archaeology"],
+    visitInfo: { bestTime: "October to March", timings: "7:00 AM to 6:00 PM daily" },
+    funFacts: [
+      "Some stone tool artifacts found in the caves date back over 100,000 years",
+      "Natural mineral pigments like red hematite and white lime have survived unchanged for 30,000 years",
+      "Inscribed as a UNESCO World Heritage Site in 2003"
+    ],
+    emoji: "🦣",
+    color: "#795548",
+    tags: ["prehistoric", "unesco", "caveart", "stoneage", "madhyapradesh"]
+  },
+  {
+    id: "padmanabhaswamy-temple",
+    name: "Padmanabhaswamy Temple",
+    image: "https://images.unsplash.com/photo-1600100397608-2e06718a38c2?auto=format&fit=crop&q=80&w=800",
+    nameHindi: "पद्मनाभस्वामी मंदिर",
+    location: { state: "Kerala", city: "Thiruvananthapuram", coordinates: [8.4828, 76.9436] },
+    category: "temple",
+    period: "16th–18th Century CE (Travancore Dynasty)",
+    unesco: false,
+    significance: "The wealthiest temple in recorded human history, dedicated to Lord Vishnu reclining in Anantha Shayana posture",
+    history: "One of the 108 sacred Divya Desams mentioned in ancient Tamil Alwar literature. Greatly expanded in the 18th century by Maharaja Anizham Thirunal Marthanda Varma of Travancore, who surrendered his kingdom to the deity in 1750, ruling as 'Padmanabhadasa' (servant of Padmanabha).",
+    architecture: "Magnificent fusion of Chera and Dravidian architectural styles. Features a 100-foot-tall, 7-tier gopuram adorned with thousands of sculptures, the corridor with 365 carved granite pillars (one for each day of the year), and the 18-foot deity visible through three sacred doors.",
+    stories: [
+      "In 2011, inventorying of five subterranean vaults (A through F) revealed gold coins, gemstone-encrusted crowns, solid gold statues, and rubies valued at over $22 billion.",
+      "Vault B remains unopened and sealed by steel cobra emblems, surrounded by ancient legends of mystical protection."
+    ],
+    cuisine: [
+      { name: "Kerala Sadya", description: "Grand vegetarian banquet served on banana leaves featuring Avial, Sambar, Olan, and Payasam" },
+      { name: "Boli & Palpayasam", description: "Sweet golden yellow lentil flatbread served with rich milk rice pudding" }
+    ],
+    artisans: [
+      { craft: "Aranmula Kannadi", description: "Handcrafted metallurgical polished metal alloy mirrors unique to Kerala" },
+      { craft: "Kasavu Mundu", description: "Traditional cream cotton handloom weaving with pure gold zari borders" }
+    ],
+    festivals: ["Alpashy & Painkuni Utsavam — Bi-annual 10-day temple festivals culminating in the magnificent Arattu holy sea bath procession", "Murajapam (held once every 6 years)"],
+    visitInfo: { bestTime: "October to March", timings: "3:30 AM to 12:00 PM & 5:00 PM to 8:30 PM (Strict traditional dress code: Mundu/Dhoti)" },
+    funFacts: [
+      "Regarded as the richest temple and institution in the world",
+      "The main idol is composed of 12,008 sacred Saligramam stones brought from the Gandaki River in Nepal",
+      "The sanctum door is crafted from single monolithic stone slabs"
+    ],
+    emoji: "✨",
+    color: "#D4AC0D",
+    tags: ["kerala", "vishnu", "wealthiest", "gopuram", "travancore"]
+  },
+  {
+    id: "elephanta-caves",
+    name: "Elephanta Caves",
+    image: "https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?auto=format&fit=crop&q=80&w=800",
+    nameHindi: "एलिफेंटा गुफाएं",
+    location: { state: "Maharashtra", city: "Elephanta Island, Mumbai Harbor", coordinates: [18.9633, 72.9315] },
+    category: "cave",
+    period: "Kalachuri & Rashtrakuta Dynasties (5th–8th Century CE)",
+    unesco: true,
+    significance: "UNESCO World Heritage rock-cut sanctuary containing the colossal 6-meter Trimurti Sadashiva sculpture",
+    history: "Carved from solid basalt rock on Gharapuri Island in Mumbai Harbor between the mid-5th and 8th centuries CE. Portuguese explorers in the 16th century named the island 'Elephanta' after discovering a colossal monolithic stone elephant sculpture near the harbor.",
+    architecture: "Rock-cut cave architecture consisting of two groups of caves: five Hindu caves dedicated to Shiva and two Buddhist caves. The Great Cave (Cave 1) features pillared verandas, stone lingam shrines with dvarapalas (guardians), and the monumental 20-foot high Trimurti depicting Shiva as Creator, Preserver, and Destroyer.",
+    stories: [
+      "The Trimurti sculpture represents Aghora (ferocious creator/destroyer), Tatpurusha (serene preserver with lotus), and Vamadeva (gentle, feminine creator with mirror).",
+      "The monolithic stone elephant that gave the island its name now stands proudly at Jijamata Udyaan zoo in Mumbai."
+    ],
+    cuisine: [
+      { name: "Mumbai Vada Pav", description: "Spiced mashed potato fritter in soft pav bread with garlic chili chutney" },
+      { name: "Bombil Fry & Koli Curry", description: "Crisp spiced Bombay duck fish fry and fisherman-style seafood curry" }
+    ],
+    artisans: [
+      { craft: "Kolhapuri Chappal", description: "Hand-tooled vegetable-dyed leather sandals with braided detailing" }
+    ],
+    festivals: ["Elephanta Festival — Classical dance and music festival organized every February by Maharashtra Tourism on the island"],
+    visitInfo: { bestTime: "November to March", timings: "9:00 AM to 5:30 PM (Closed on Mondays; accessible via ferry from Gateway of India)" },
+    funFacts: [
+      "Located 10 km east of the Gateway of India across the Arabian Sea harbor",
+      "The colossal Trimurti statue stands 6 meters (20 feet) tall",
+      "Declared a UNESCO World Heritage Site in 1987"
+    ],
+    emoji: "🗿",
+    color: "#7F8C8D",
+    tags: ["unesco", "caves", "mumbai", "shiva", "rockcut"]
+  },
+  {
+    id: "belur-chennakeshava",
+    name: "Chennakeshava Temple Belur",
+    image: "https://images.unsplash.com/photo-1600100397608-2e06718a38c2?auto=format&fit=crop&q=80&w=800",
+    nameHindi: "चेन्नकेशव मंदिर बेलूर",
+    location: { state: "Karnataka", city: "Hassan District", coordinates: [13.1627, 75.8604] },
+    category: "temple",
+    period: "Hoysala Empire (1117 CE)",
+    unesco: true,
+    significance: "UNESCO World Heritage Hoysala soapstone masterpiece famed for the world's most intricate stone filigree sculptures",
+    history: "Commissioned by King Vishnuvardhana in 1117 CE to celebrate his military victory over the Cholas at Talakadu. It took 103 years and three generations of master sculptors (including legendary artisans Mallitamma and Dasoja) to complete its mind-boggling soapstone relief work.",
+    architecture: "Star-shaped (stellate) ground plan built on a raised platform (jagati) using chloritic schist (soapstone). Exterior friezes feature 650 continuous carved elephants, lions, horses, and dancing Madanikas (bracket figures) with carved jewelry so delicate you can pass a silk thread behind them.",
+    stories: [
+      "Legend says the Madanika dancers were modeled after the legendary beauty of Hoysala Queen Shantala Devi, a renowned dancer.",
+      "The Gravity Pillar (Mahasthambha) in the courtyard stands 42 feet high on its own weight and center of gravity without any base foundation!"
+    ],
+    cuisine: [
+      { name: "Mysore Pak", description: "Melt-in-mouth sweet made with pure desi ghee, gram flour, and sugar syrup" },
+      { name: "Bisi Bele Bath", description: "Spiced hot rice and lentil pot dish cooked with mixed vegetables, tamarind, and aromatic spices" }
+    ],
+    artisans: [
+      { craft: "Channapatna Lacquerware Toys", description: "Smooth eco-friendly wooden toys colored with organic vegetable dyes" },
+      { craft: "Mysore Sandalwood Carving", description: "Fragrant figurines and sacred boxes carved from genuine sandalwood" }
+    ],
+    festivals: ["Belur Car Festival (Rathotsava) — Grand annual chariot festival celebrated every March/April", "Hoysala Mahotsava"],
+    visitInfo: { bestTime: "October to March", timings: "7:30 AM to 7:30 PM daily" },
+    funFacts: [
+      "Took 103 years to complete across three generations of sculptors",
+      "Part of the Sacred Ensembles of the Hoysalas inscribed as UNESCO World Heritage in 2023",
+      "Every single one of the 42 Madanika bracket figures has a distinct facial expression and hairstyle"
+    ],
+    emoji: "🛕",
+    color: "#D35400",
+    tags: ["unesco", "hoysala", "karnataka", "belur", "soapstone"]
   }
 ];
 
