@@ -834,8 +834,9 @@ body { top: 0px !important; position: relative !important; }
 .scanner-placeholder p { color: rgba(255,255,255,0.4); font-size: var(--text-lg); }
 .placeholder-hint { font-size: var(--text-sm) !important; }
 
-/* Scanner Target Selector & Quick Chips */
+/* Scanner Target Selector & Quick Chips (Hidden for clean scanning presentation) */
 .scanner-target-bar {
+  display: none !important;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--radius-xl);

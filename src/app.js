@@ -607,7 +607,29 @@ class VirasatApp {
     if (simView) {
       simView.style.display = 'block';
       const previewUrl = this.hudTarget?.image || this.currentCluster?.previewImage || FALLBACK_HERITAGE_IMG;
-      if (simBackdrop) simBackdrop.src = previewUrl;
+      if (simBackdrop) {
+        simBackdrop.src = previewUrl;
+        simBackdrop.style.cursor = 'pointer';
+        simBackdrop.title = 'Tap viewfinder scene to switch monument preview';
+        simBackdrop.onclick = () => {
+          const demoSiteIds = [
+            'taj-mahal',
+            'red-fort',
+            'konark-sun-temple',
+            'qutb-minar',
+            'hawa-mahal',
+            'golden-temple',
+            'hampi',
+            'meenakshi-temple'
+          ];
+          this._simSceneIdx = ((this._simSceneIdx || 0) + 1) % demoSiteIds.length;
+          const next = findSiteById(demoSiteIds[this._simSceneIdx]);
+          if (next) {
+            this.hudTarget = next;
+            if (next.image) simBackdrop.src = next.image;
+          }
+        };
+      }
     }
 
     if (notice) {
@@ -1660,8 +1682,26 @@ IMPORTANT: confidence should be 0-100 based on how certain you are. Only return 
     const placeholder = document.getElementById('scannerPlaceholder');
     if (placeholder) placeholder.style.display = 'none';
 
-    // Pick the currently selected monument target, or default to Taj Mahal
-    const site = this.hudTarget || findSiteById('taj-mahal') || heritageSites[0];
+    // Cycle through iconic monuments so each demo run showcases a different site
+    const demoSiteIds = [
+      'taj-mahal',
+      'red-fort',
+      'konark-sun-temple',
+      'qutb-minar',
+      'hawa-mahal',
+      'golden-temple',
+      'hampi',
+      'meenakshi-temple'
+    ];
+    if (this._demoIndex === undefined) {
+      this._demoIndex = 0;
+    }
+    const targetId = demoSiteIds[this._demoIndex % demoSiteIds.length];
+    this._demoIndex++;
+
+    const site = findSiteById(targetId) || this.hudTarget || heritageSites[0];
+    this.hudTarget = site;
+
     const processing = document.getElementById('scannerProcessing');
     const processingText = document.getElementById('processingText');
     const result = document.getElementById('scannerResult');
@@ -1687,7 +1727,7 @@ IMPORTANT: confidence should be 0-100 based on how certain you are. Only return 
       if (processing) processing.style.display = 'none';
       const conf = (96.2 + Math.random() * 3.2).toFixed(1);
       this.showScanResult(site, conf);
-    }, 1500);
+    }, 1400);
   }
 
   showScanResult(site, confidence) {
