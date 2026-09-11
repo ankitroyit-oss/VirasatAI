@@ -136,6 +136,35 @@
       <p class="section-subtitle">Point your camera at any Indian monument or upload a photo — our AI will identify it and reveal its rich cultural story.</p>
     </div>
     <div class="scanner-container">
+      <!-- Target Monument Selector Bar -->
+      <div class="scanner-target-bar" id="scannerTargetBar">
+        <div class="scanner-target-header">
+          <span class="target-bar-label">🎯 Monument Target / Demo:</span>
+          <div class="target-dropdown-wrap">
+            <select id="scannerMonumentSelect" class="scanner-monument-select" aria-label="Select monument to scan">
+              <option value="taj-mahal">🕌 Taj Mahal (Agra)</option>
+              <option value="red-fort">🏰 Red Fort (Delhi)</option>
+              <option value="konark-sun-temple">🛕 Konark Sun Temple (Odisha)</option>
+              <option value="qutb-minar">🗼 Qutb Minar (Delhi)</option>
+              <option value="hawa-mahal">🏯 Hawa Mahal (Jaipur)</option>
+              <option value="golden-temple">✨ Golden Temple (Amritsar)</option>
+              <option value="meenakshi-temple">🛕 Meenakshi Temple (Madurai)</option>
+              <option value="hampi">🛕 Hampi (Karnataka)</option>
+            </select>
+          </div>
+        </div>
+        <div class="scanner-quick-chips" id="scannerQuickChips">
+          <button type="button" class="target-chip active" data-site="taj-mahal">🕌 Taj Mahal</button>
+          <button type="button" class="target-chip" data-site="red-fort">🏰 Red Fort</button>
+          <button type="button" class="target-chip" data-site="konark-sun-temple">🛕 Konark</button>
+          <button type="button" class="target-chip" data-site="qutb-minar">🗼 Qutb Minar</button>
+          <button type="button" class="target-chip" data-site="hawa-mahal">🏯 Hawa Mahal</button>
+          <button type="button" class="target-chip" data-site="golden-temple">✨ Golden Temple</button>
+          <button type="button" class="target-chip" data-site="hampi">🛕 Hampi</button>
+          <button type="button" class="target-chip" data-site="meenakshi-temple">🛕 Meenakshi</button>
+        </div>
+      </div>
+
       <div class="scanner-viewfinder" id="scannerViewfinder">
         <div class="viewfinder-frame">
           <div class="corner corner-tl"></div>

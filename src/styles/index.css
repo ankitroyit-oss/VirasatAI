@@ -834,6 +834,102 @@ body { top: 0px !important; position: relative !important; }
 .scanner-placeholder p { color: rgba(255,255,255,0.4); font-size: var(--text-lg); }
 .placeholder-hint { font-size: var(--text-sm) !important; }
 
+/* Scanner Target Selector & Quick Chips */
+.scanner-target-bar {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-xl);
+  padding: var(--space-4);
+  margin-bottom: var(--space-5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.scanner-target-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-3);
+}
+
+.target-bar-label {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--royal-gold);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.target-dropdown-wrap {
+  flex: 1;
+  min-width: 220px;
+  max-width: 340px;
+}
+
+.scanner-monument-select {
+  width: 100%;
+  padding: 8px 14px;
+  background: rgba(15, 5, 34, 0.9);
+  border: 1px solid rgba(212, 168, 83, 0.35);
+  border-radius: var(--radius-full);
+  color: #fff;
+  font-size: var(--text-xs);
+  font-family: inherit;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.scanner-monument-select:focus,
+.scanner-monument-select:hover {
+  border-color: var(--saffron);
+  box-shadow: 0 0 14px rgba(255, 107, 53, 0.3);
+}
+
+.scanner-quick-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.target-chip {
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.82);
+  font-size: var(--text-xs);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  user-select: none;
+  font-family: inherit;
+}
+
+.target-chip:hover {
+  background: rgba(255, 107, 53, 0.16);
+  border-color: rgba(255, 107, 53, 0.45);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.target-chip.active {
+  background: linear-gradient(135deg, var(--saffron), #E0531C);
+  border-color: transparent;
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 4px 14px rgba(255, 107, 53, 0.35);
+}
+
 .scanner-controls {
   display: flex;
   gap: var(--space-3);
