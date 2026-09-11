@@ -3533,7 +3533,7 @@ body { top: 0px !important; position: relative !important; }
 
 /* ===== FASTAPI BACKEND STATUS PILL & TELEMETRY MODAL ===== */
 .backend-status-pill {
-  display: inline-flex;
+  display: none !important;
   align-items: center;
   gap: 7px;
   padding: 4px 12px;
