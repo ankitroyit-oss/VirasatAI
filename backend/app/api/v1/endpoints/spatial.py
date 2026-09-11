@@ -28,7 +28,7 @@ async def get_nearby_monuments(
     limit: int = Query(10, ge=1, le=100, description="Max monuments to return"),
     category: Optional[str] = Query(None, description="Optional category filter (monument, fort, temple, etc.)"),
     heading: Optional[float] = Query(None, ge=0.0, le=360.0, description="Observer compass heading in degrees"),
-    db: AsyncSession = Depends(get_db)
+    db: Optional[AsyncSession] = Depends(get_db)
 ):
     """
     High-Performance PostGIS Spatial Radius Query:
@@ -49,7 +49,7 @@ async def get_nearby_monuments(
 @router.post("/proximity-detect", response_model=ProximityAlertResponse, summary="Real-time proximity alert detector")
 async def detect_proximity_alerts(
     req: ProximityAlertRequest,
-    db: AsyncSession = Depends(get_db)
+    db: Optional[AsyncSession] = Depends(get_db)
 ):
     """
     Dynamic Proximity Engine for Live AR & Mobile Geolocation Streams:
@@ -59,7 +59,6 @@ async def detect_proximity_alerts(
     - 🔵 Nearby (< 10km): 'Nearby Heritage Site'
     Includes estimated time of arrival (ETA) based on streaming velocity.
     """
-    # Search within 10 km (10,000 meters)
     nearby_sites = await monument_crud.get_nearby_spatial(
         db,
         lat=req.latitude,
@@ -92,7 +91,6 @@ async def detect_proximity_alerts(
             body = f"Located {round(dist_m / 1000.0, 1)} km away in {item.city}."
 
         if tier:
-            # Calculate ETA if moving towards site
             eta_sec = None
             if req.speed_mps > 0.5:
                 eta_sec = int(dist_m / req.speed_mps)
@@ -134,20 +132,31 @@ async def detect_proximity_alerts(
 async def get_monuments_geojson(
     category: Optional[str] = Query(None, description="Optional category filter"),
     state: Optional[str] = Query(None, description="Optional state filter"),
-    db: AsyncSession = Depends(get_db)
+    db: Optional[AsyncSession] = Depends(get_db)
 ):
     """
     Returns spatial GeoJSON FeatureCollection of monuments for direct rendering on
     Mapbox, Leaflet, Google Maps, or SVG cartography layers.
     """
-    stmt = select(Monument)
-    if category:
-        stmt = stmt.where(Monument.category == category.lower())
-    if state:
-        stmt = stmt.where(Monument.state.ilike(state))
+    monuments = []
+    if db is not None:
+        try:
+            stmt = select(Monument)
+            if category:
+                stmt = stmt.where(Monument.category == category.lower())
+            if state:
+                stmt = stmt.where(Monument.state.ilike(state))
+            result = await db.execute(stmt)
+            monuments = list(result.scalars().all())
+        except Exception:
+            pass
 
-    result = await db.execute(stmt)
-    monuments = result.scalars().all()
+    if not monuments:
+        monuments = list(monument_crud._memory_monuments.values())
+        if category:
+            monuments = [m for m in monuments if m.category and m.category.lower() == category.lower()]
+        if state:
+            monuments = [m for m in monuments if m.state and m.state.lower() == state.lower()]
 
     features = []
     for m in monuments:

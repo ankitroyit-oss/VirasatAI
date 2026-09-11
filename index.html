@@ -32,6 +32,10 @@
         <span class="logo-icon">🛕</span>
         <span class="logo-text notranslate">Virasat<span class="logo-accent">AI</span></span>
       </a>
+      <div class="backend-status-pill" id="backendStatusPill" role="button" tabindex="0" title="Click to inspect live FastAPI Spatial Backend">
+        <span class="backend-pulse-dot" id="backendPulseDot"></span>
+        <span class="backend-status-text" id="backendStatusText">Connecting Backend...</span>
+      </div>
       <ul class="navbar-links" id="navbarLinks">
         <li><a href="#hero" class="nav-link active" data-section="hero">Home</a></li>
         <li><a href="#scanner" class="nav-link" data-section="scanner">AI Scanner</a></li>
@@ -429,6 +433,53 @@
 
   <!-- ===== PROXIMITY TOAST CONTAINER ===== -->
   <div id="proximityToastContainer" aria-live="polite" aria-label="Nearby monument alerts"></div>
+
+  <!-- ===== BACKEND STATUS & TELEMETRY MODAL ===== -->
+  <div class="backend-modal-backdrop" id="backendModalBackdrop" style="display:none;">
+    <div class="backend-modal">
+      <button class="backend-modal-close" id="backendModalClose" aria-label="Close modal">&times;</button>
+      <div class="backend-modal-header">
+        <span class="backend-modal-icon">⚡</span>
+        <div>
+          <h3>FastAPI Spatial REST Engine</h3>
+          <p class="backend-modal-sub">Real-Time PostGIS & Geodesic Intelligence Microservice</p>
+        </div>
+      </div>
+      <div class="backend-metrics-grid">
+        <div class="metric-card">
+          <div class="metric-label">API Status</div>
+          <div class="metric-value text-success" id="backendMetricStatus">Checking...</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Latency</div>
+          <div class="metric-value text-accent" id="backendMetricLatency">-- ms</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Monuments</div>
+          <div class="metric-value" id="backendMetricMonuments">35 Verified</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Spatial Engine</div>
+          <div class="metric-value" id="backendMetricEngine">PostGIS GiST</div>
+        </div>
+      </div>
+      <div class="backend-api-endpoints">
+        <div class="endpoint-title">Live API Endpoints Connected:</div>
+        <div class="endpoint-list">
+          <span class="endpoint-badge">GET /api/v1/health</span>
+          <span class="endpoint-badge">GET /api/v1/monuments/</span>
+          <span class="endpoint-badge">POST /api/v1/spatial/proximity-detect</span>
+          <span class="endpoint-badge">POST /api/v1/ar/telemetry</span>
+          <span class="endpoint-badge">GET /api/v1/spatial/geojson</span>
+          <span class="endpoint-badge">POST /api/v1/monuments/{id}/reviews</span>
+        </div>
+      </div>
+      <div class="backend-modal-actions">
+        <a href="http://127.0.0.1:8000/docs" target="_blank" rel="noopener" class="btn btn-primary" id="openSwaggerBtn">📖 Open Interactive Swagger UI</a>
+        <button class="btn btn-secondary" id="backendPingBtn">🔄 Test Ping API</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Google Translate -->
   <div id="google_translate_element" style="display:none;"></div>

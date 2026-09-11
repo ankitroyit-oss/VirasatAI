@@ -15,7 +15,7 @@ router = APIRouter()
 @router.post("/telemetry", response_model=ARVectorTelemetryResponse, summary="Compute AR Camera Telemetry Vector")
 async def calculate_ar_telemetry(
     req: ARVectorTelemetryRequest,
-    db: AsyncSession = Depends(get_db)
+    db: Optional[AsyncSession] = Depends(get_db)
 ):
     """
     AR Viewfinder Camera Telemetry & Occlusion Analysis:

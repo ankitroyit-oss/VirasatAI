@@ -99,3 +99,94 @@ def test_seed_reviews_integrity():
         assert "monument_id" in rev
         assert "author" in rev
         assert 1 <= rev["rating"] <= 5
+
+
+def test_health_endpoint():
+    """Verify health endpoint returns status healthy."""
+    response = client.get("/api/v1/health")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "healthy"
+    assert "latency_ms" in data
+
+
+def test_list_monuments_endpoint():
+    """Verify list monuments returns 35 verified heritage sites."""
+    response = client.get("/api/v1/monuments/")
+    assert response.status_code == 200
+    items = response.json()
+    assert len(items) == 35
+    assert any(m["id"] == "taj-mahal" for m in items)
+    assert any(m["id"] == "red-fort" for m in items)
+
+
+def test_get_categories_and_states():
+    """Verify categories and states endpoints."""
+    cats = client.get("/api/v1/monuments/categories").json()
+    assert len(cats) >= 4
+    states = client.get("/api/v1/monuments/states").json()
+    assert len(states) >= 10
+
+
+def test_get_monument_detail():
+    """Verify detailed monument fetch."""
+    res = client.get("/api/v1/monuments/taj-mahal")
+    assert res.status_code == 200
+    m = res.json()
+    assert m["name"] == "Taj Mahal"
+    assert m["unesco"] is True
+    assert "architecture" in m
+    assert "visit_info" in m
+
+
+def test_spatial_nearby_endpoint():
+    """Verify spatial nearby returns sites sorted by geodesic distance."""
+    res = client.get("/api/v1/spatial/nearby?latitude=27.1751&longitude=78.0421&radius_meters=10000")
+    assert res.status_code == 200
+    nearby = res.json()
+    assert len(nearby) > 0
+    assert nearby[0]["id"] == "taj-mahal"
+    assert nearby[0]["distance_meters"] < 10
+
+
+def test_proximity_detect_endpoint():
+    """Verify real-time proximity alert generation."""
+    payload = {
+        "latitude": 27.1760,
+        "longitude": 78.0425,
+        "heading_deg": 45.0,
+        "speed_mps": 1.4
+    }
+    res = client.post("/api/v1/spatial/proximity-detect", json=payload)
+    assert res.status_code == 200
+    data = res.json()
+    assert data["has_active_alerts"] is True
+    assert len(data["alerts"]) > 0
+    assert data["closest_monument"]["id"] == "taj-mahal"
+
+
+def test_ar_telemetry_endpoint():
+    """Verify AR camera vector telemetry."""
+    payload = {
+        "user_latitude": 27.1700,
+        "user_longitude": 78.0400,
+        "device_heading": 30.0,
+        "camera_fov_horizontal": 65.0,
+        "target_monument_id": "taj-mahal"
+    }
+    res = client.post("/api/v1/ar/telemetry", json=payload)
+    assert res.status_code == 200
+    telemetry = res.json()
+    assert telemetry["target_id"] == "taj-mahal"
+    assert "direction_arrow" in telemetry
+    assert "distance_formatted" in telemetry
+
+
+def test_geojson_endpoint():
+    """Verify RFC 7946 GeoJSON FeatureCollection."""
+    res = client.get("/api/v1/spatial/geojson")
+    assert res.status_code == 200
+    geojson = res.json()
+    assert geojson["type"] == "FeatureCollection"
+    assert len(geojson["features"]) == 35
+

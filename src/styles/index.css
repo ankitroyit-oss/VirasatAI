@@ -3530,6 +3530,241 @@ body { top: 0px !important; position: relative !important; }
   }
 }
 
+/* ===== FASTAPI BACKEND STATUS PILL & TELEMETRY MODAL ===== */
+.backend-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: rgba(0, 230, 118, 0.12);
+  border: 1px solid rgba(0, 230, 118, 0.35);
+  color: #00E676;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+  margin-left: 12px;
+  vertical-align: middle;
+}
+
+.backend-status-pill:hover {
+  background: rgba(0, 230, 118, 0.22);
+  border-color: rgba(0, 230, 118, 0.6);
+  box-shadow: 0 0 14px rgba(0, 230, 118, 0.35);
+  transform: translateY(-1px);
+}
+
+.backend-pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #00E676;
+  box-shadow: 0 0 8px #00E676;
+  animation: backendGlowPulse 2s infinite ease-in-out;
+}
+
+@keyframes backendGlowPulse {
+  0% {
+    transform: scale(0.9);
+    box-shadow: 0 0 4px #00E676;
+  }
+  50% {
+    transform: scale(1.2);
+    box-shadow: 0 0 12px #00E676, 0 0 18px rgba(0, 230, 118, 0.6);
+  }
+  100% {
+    transform: scale(0.9);
+    box-shadow: 0 0 4px #00E676;
+  }
+}
+
+.backend-status-pill.degraded {
+  background: rgba(255, 179, 0, 0.12);
+  border-color: rgba(255, 179, 0, 0.35);
+  color: #FFB300;
+}
+.backend-status-pill.degraded .backend-pulse-dot {
+  background: #FFB300;
+  box-shadow: 0 0 8px #FFB300;
+}
+
+.backend-status-pill.offline {
+  background: rgba(255, 82, 82, 0.12);
+  border-color: rgba(255, 82, 82, 0.35);
+  color: #FF5252;
+}
+.backend-status-pill.offline .backend-pulse-dot {
+  background: #FF5252;
+  box-shadow: 0 0 8px #FF5252;
+  animation: none;
+}
+
+/* Modal */
+.backend-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(8, 10, 18, 0.85);
+  backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: modalFadeIn 0.25s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.backend-modal {
+  background: linear-gradient(135deg, #141724 0%, #0F121C 100%);
+  border: 1px solid rgba(255, 215, 0, 0.25);
+  border-radius: 20px;
+  max-width: 540px;
+  width: 100%;
+  padding: 28px;
+  position: relative;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(0, 229, 255, 0.1);
+  color: #fff;
+}
+
+.backend-modal-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 20px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.backend-modal-close:hover {
+  background: rgba(255, 82, 82, 0.25);
+  color: #FF5252;
+  transform: rotate(90deg);
+}
+
+.backend-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.backend-modal-icon {
+  font-size: 32px;
+  padding: 10px;
+  background: rgba(0, 229, 255, 0.12);
+  border-radius: 12px;
+  border: 1px solid rgba(0, 229, 255, 0.25);
+}
+
+.backend-modal-header h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 4px 0;
+}
+
+.backend-modal-sub {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+}
+
+.backend-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.metric-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.metric-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 6px;
+}
+
+.metric-value {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.metric-value.text-success { color: #00E676; }
+.metric-value.text-accent { color: #00E5FF; }
+
+.backend-api-endpoints {
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 22px;
+}
+
+.endpoint-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.endpoint-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.endpoint-badge {
+  font-family: 'JetBrains Mono', monospace, Consolas, sans-serif;
+  font-size: 11px;
+  padding: 4px 8px;
+  background: rgba(0, 229, 255, 0.1);
+  border: 1px solid rgba(0, 229, 255, 0.2);
+  color: #00E5FF;
+  border-radius: 6px;
+}
+
+.backend-modal-actions {
+  display: flex;
+  gap: 12px;
+}
+
+@media (max-width: 768px) {
+  .backend-status-pill {
+    padding: 3px 8px;
+    font-size: 10px;
+    margin-left: 6px;
+  }
+  .backend-modal-actions {
+    flex-direction: column;
+  }
+}
+
+
 
 
 

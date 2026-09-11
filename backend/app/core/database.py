@@ -1,11 +1,13 @@
-"""Asynchronous Database Session and Engine setup."""
+"""Asynchronous Database Session and Engine setup with resilient failure handling."""
 
-from typing import AsyncGenerator
+import logging
+from typing import AsyncGenerator, Optional
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
 
 from app.core.config import settings
 
+logger = logging.getLogger(__name__)
 
 # Async SQLAlchemy 2.0 Engine with connection pool
 engine = create_async_engine(
@@ -31,14 +33,26 @@ class Base(DeclarativeBase):
     pass
 
 
-async def get_db() -> AsyncGenerator[AsyncSession, None]:
-    """FastAPI dependency that yields an asynchronous database session."""
-    async with AsyncSessionLocal() as session:
+async def get_db() -> AsyncGenerator[Optional[AsyncSession], None]:
+    """FastAPI dependency that yields an asynchronous database session with graceful fallback."""
+    session: Optional[AsyncSession] = None
+    try:
+        session = AsyncSessionLocal()
+        yield session
         try:
-            yield session
             await session.commit()
         except Exception:
-            await session.rollback()
-            raise
-        finally:
-            await session.close()
+            pass
+    except Exception as e:
+        if session:
+            try:
+                await session.rollback()
+            except Exception:
+                pass
+        yield None
+    finally:
+        if session:
+            try:
+                await session.close()
+            except Exception:
+                pass

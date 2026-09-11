@@ -66,12 +66,185 @@ const SIMULATED_CLUSTERS = [
   }
 ];
 
+// ==================== FASTAPI REST SPATIAL BACKEND ENGINE ====================
+class BackendApiClient {
+  constructor(baseUrl = 'http://127.0.0.1:8000/api/v1') {
+    this.baseUrl = baseUrl;
+    this.isOnline = false;
+    this.lastHealth = null;
+    this.pingInterval = null;
+  }
+
+  async init() {
+    this.setupModalControls();
+    await this.checkHealth();
+    // Heartbeat check every 15 seconds
+    this.pingInterval = setInterval(() => this.checkHealth(), 15000);
+  }
+
+  async checkHealth() {
+    const pill = document.getElementById('backendStatusPill');
+    const textEl = document.getElementById('backendStatusText');
+    const start = performance.now();
+
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 2000);
+      const res = await fetch(`${this.baseUrl}/health`, { signal: controller.signal });
+      clearTimeout(timeoutId);
+
+      if (res.ok) {
+        const data = await res.json();
+        const latency = Math.max(1, Math.round(performance.now() - start));
+        this.isOnline = true;
+        this.lastHealth = data;
+
+        if (pill) {
+          pill.className = 'backend-status-pill';
+          pill.title = `FastAPI PostGIS Spatial Engine · Latency: ${latency}ms · Click to inspect microservice`;
+        }
+        if (textEl) {
+          textEl.textContent = `🟢 Backend Live (${latency}ms)`;
+        }
+        this.updateModalMetrics(data, latency);
+        return data;
+      } else {
+        throw new Error(`HTTP ${res.status}`);
+      }
+    } catch (e) {
+      this.isOnline = false;
+      if (pill) {
+        pill.className = 'backend-status-pill offline';
+        pill.title = `FastAPI server offline · Resilient fallback active · Click to retry`;
+      }
+      if (textEl) {
+        textEl.textContent = `🟡 Standalone Mode`;
+      }
+      this.updateModalMetrics(null, null);
+      return null;
+    }
+  }
+
+  updateModalMetrics(data, latency) {
+    const statusEl = document.getElementById('backendMetricStatus');
+    const latEl = document.getElementById('backendMetricLatency');
+    const monEl = document.getElementById('backendMetricMonuments');
+    const engEl = document.getElementById('backendMetricEngine');
+
+    if (statusEl) {
+      statusEl.textContent = data ? 'Online (HTTP 200 OK)' : 'Offline (Local Mode)';
+      statusEl.className = data ? 'metric-value text-success' : 'metric-value text-warning';
+    }
+    if (latEl) latEl.textContent = latency !== null ? `${latency} ms` : '-- ms';
+    if (monEl) monEl.textContent = '35 Verified Sites';
+    if (engEl) engEl.textContent = data?.postgis_version ? 'PostGIS Spatial Engine' : 'Spherical Geodesic';
+  }
+
+  setupModalControls() {
+    const pill = document.getElementById('backendStatusPill');
+    const modalBackdrop = document.getElementById('backendModalBackdrop');
+    const closeBtn = document.getElementById('backendModalClose');
+    const pingBtn = document.getElementById('backendPingBtn');
+
+    if (pill && modalBackdrop) {
+      pill.addEventListener('click', () => {
+        modalBackdrop.style.display = 'flex';
+        this.checkHealth();
+      });
+    }
+
+    if (closeBtn && modalBackdrop) {
+      closeBtn.addEventListener('click', () => {
+        modalBackdrop.style.display = 'none';
+      });
+    }
+
+    if (modalBackdrop) {
+      modalBackdrop.addEventListener('click', (e) => {
+        if (e.target === modalBackdrop) {
+          modalBackdrop.style.display = 'none';
+        }
+      });
+    }
+
+    if (pingBtn) {
+      pingBtn.addEventListener('click', async () => {
+        pingBtn.textContent = '⏳ Testing...';
+        await this.checkHealth();
+        setTimeout(() => {
+          pingBtn.textContent = '🔄 Test Ping API';
+        }, 600);
+      });
+    }
+  }
+
+  async detectProximity(lat, lng, heading = 0, speed = 0) {
+    try {
+      const res = await fetch(`${this.baseUrl}/spatial/proximity-detect`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          latitude: lat,
+          longitude: lng,
+          heading_deg: heading,
+          speed_mps: speed
+        })
+      });
+      if (!res.ok) return null;
+      return await res.json();
+    } catch (e) {
+      return null;
+    }
+  }
+
+  async getArTelemetry(targetMonumentId, userLat, userLng, heading = 0, fov = 65.0) {
+    try {
+      const res = await fetch(`${this.baseUrl}/ar/telemetry`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_latitude: userLat,
+          user_longitude: userLng,
+          device_heading: heading,
+          camera_fov_horizontal: fov,
+          target_monument_id: targetMonumentId
+        })
+      });
+      if (!res.ok) return null;
+      return await res.json();
+    } catch (e) {
+      return null;
+    }
+  }
+
+  async submitReview(monumentId, reviewData) {
+    try {
+      const res = await fetch(`${this.baseUrl}/monuments/${monumentId}/reviews`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          author: reviewData.author || 'Visitor',
+          rating: reviewData.rating || 5,
+          text: reviewData.text || '',
+          visit_date: reviewData.visit_date || reviewData.date || '2025-02'
+        })
+      });
+      if (!res.ok) return null;
+      return await res.json();
+    } catch (e) {
+      return null;
+    }
+  }
+}
+
 // ==================== APP INITIALIZATION ====================
 class VirasatApp {
   constructor() {
     this.cameraStream = null;
     this.quizState = null;
     this.activeMapState = null;
+    // Backend API Client
+    this.backendApi = new BackendApiClient();
     // Prototype Testing & Simulation State
     this.currentCluster = SIMULATED_CLUSTERS[0];
     this.isSimulatedLocation = true;
@@ -112,6 +285,7 @@ class VirasatApp {
   }
 
   init() {
+    this.backendApi.init();
     this.setupNavbar();
     this.setupHero();
     this.setupGpsBanner();
@@ -744,6 +918,30 @@ class VirasatApp {
   checkProximityAlerts() {
     if (!this.userPosition) return;
 
+    // 1. Live FastAPI PostGIS Proximity Engine Query
+    if (this.backendApi && this.backendApi.isOnline) {
+      this.backendApi.detectProximity(
+        this.userPosition.lat,
+        this.userPosition.lng,
+        this.userPosition.heading || 0,
+        this.userPosition.speed || 0
+      ).then(res => {
+        if (res && res.has_active_alerts && res.alerts.length > 0) {
+          const topAlert = res.alerts[0];
+          const now = Date.now();
+          const lastAlert = this.alertCooldowns.get(topAlert.monument_id) || 0;
+          if (now - lastAlert > 30000) {
+            this.alertCooldowns.set(topAlert.monument_id, now);
+            const site = findSiteById(topAlert.monument_id);
+            if (site) {
+              this.showProximityToast(site, topAlert.distance_meters / 1000, topAlert.tier);
+            }
+          }
+        }
+      }).catch(() => {});
+    }
+
+    // 2. Client-side geodesic calculation & sort for HUD lists
     const distances = heritageSites.map(site => {
       const [sLat, sLng] = site.location.coordinates;
       const dist = this.calculateDistance(this.userPosition.lat, this.userPosition.lng, sLat, sLng);
@@ -755,23 +953,25 @@ class VirasatApp {
 
     if (distances.length === 0) return;
 
-    const closest = distances[0];
-    let tier = null;
-    if (closest.dist <= 0.5) {
-      tier = 'alert';
-    } else if (closest.dist <= 2.0) {
-      tier = 'warning';
-    } else if (closest.dist <= 10.0) {
-      tier = 'nearby';
-    }
+    // 3. Resilient fallback for toast notifications when backend is offline
+    if (!this.backendApi || !this.backendApi.isOnline) {
+      const closest = distances[0];
+      let tier = null;
+      if (closest.dist <= 0.5) {
+        tier = 'alert';
+      } else if (closest.dist <= 2.0) {
+        tier = 'warning';
+      } else if (closest.dist <= 10.0) {
+        tier = 'nearby';
+      }
 
-    if (tier) {
-      const now = Date.now();
-      const lastAlert = this.alertCooldowns.get(closest.site.id) || 0;
-      // 30-second cooldown per site
-      if (now - lastAlert > 30000) {
-        this.alertCooldowns.set(closest.site.id, now);
-        this.showProximityToast(closest.site, closest.dist, tier);
+      if (tier) {
+        const now = Date.now();
+        const lastAlert = this.alertCooldowns.get(closest.site.id) || 0;
+        if (now - lastAlert > 30000) {
+          this.alertCooldowns.set(closest.site.id, now);
+          this.showProximityToast(closest.site, closest.dist, tier);
+        }
       }
     }
   }
@@ -958,6 +1158,23 @@ class VirasatApp {
       return;
     }
 
+    // 1. Asynchronously fetch live vector telemetry from FastAPI REST Backend
+    if (this.backendApi && this.backendApi.isOnline) {
+      this.backendApi.getArTelemetry(
+        this.hudTarget.id,
+        this.userPosition.lat,
+        this.userPosition.lng,
+        this.deviceHeading || 0,
+        65.0
+      ).then(telem => {
+        if (!telem) return;
+        if (distEl) distEl.textContent = telem.distance_formatted;
+        if (bearingEl) bearingEl.textContent = `Bearing: ${Math.round(telem.bearing_degrees)}°`;
+        if (relativeEl) relativeEl.textContent = `${telem.direction_arrow} ${telem.direction_label}`;
+      }).catch(() => {});
+    }
+
+    // 2. Client-side geodesic calculation fallback
     const [tLat, tLng] = this.hudTarget.location.coordinates;
     const dist = this.calculateDistance(this.userPosition.lat, this.userPosition.lng, tLat, tLng);
     const bearing = this.calculateBearing(this.userPosition.lat, this.userPosition.lng, tLat, tLng);
@@ -972,11 +1189,11 @@ class VirasatApp {
       distStr = `${Math.round(dist)} km`;
     }
 
-    if (distEl) distEl.textContent = distStr;
-    if (bearingEl) bearingEl.textContent = `Bearing: ${Math.round(bearing)}°`;
+    if (distEl && (!this.backendApi || !this.backendApi.isOnline)) distEl.textContent = distStr;
+    if (bearingEl && (!this.backendApi || !this.backendApi.isOnline)) bearingEl.textContent = `Bearing: ${Math.round(bearing)}°`;
 
     // Show relative direction if we have compass heading
-    if (relativeEl) {
+    if (relativeEl && (!this.backendApi || !this.backendApi.isOnline)) {
       if (this.deviceHeading !== null) {
         relativeEl.textContent = this.getRelativeDirection(bearing, this.deviceHeading);
       } else {
@@ -2360,6 +2577,16 @@ IMPORTANT: confidence should be 0-100 based on how certain you are. Only return 
         text,
         date
       });
+
+      // Synchronize with FastAPI backend in real time
+      if (this.backendApi && this.backendApi.isOnline) {
+        this.backendApi.submitReview(site.id, {
+          author,
+          rating: selectedRating,
+          text,
+          visit_date: date
+        }).catch(err => console.warn('Notice syncing review to backend:', err));
+      }
 
       // Show success feedback
       if (successMsg) {

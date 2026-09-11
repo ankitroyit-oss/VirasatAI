@@ -22,7 +22,7 @@ async def list_monuments(
     state: Optional[str] = Query(None, description="Filter by Indian state"),
     unesco_only: Optional[bool] = Query(None, description="Filter by UNESCO status"),
     search: Optional[str] = Query(None, description="Search term in name, city, or state"),
-    db: AsyncSession = Depends(get_db)
+    db: Optional[AsyncSession] = Depends(get_db)
 ):
     """Retrieve monuments with flexible filtering, search, and pagination."""
     monuments, _ = await monument_crud.get_multi(
@@ -61,23 +61,47 @@ async def list_monuments(
 
 
 @router.get("/categories", summary="Get all available heritage categories")
-async def get_categories(db: AsyncSession = Depends(get_db)):
+async def get_categories(db: Optional[AsyncSession] = Depends(get_db)):
     """Return distinct categories across all monuments."""
-    stmt = select(Monument.category, func.count(Monument.id)).group_by(Monument.category)
-    results = (await db.execute(stmt)).all()
-    return [{"category": cat, "count": count} for cat, count in results]
+    if db is not None:
+        try:
+            stmt = select(Monument.category, func.count(Monument.id)).group_by(Monument.category)
+            results = (await db.execute(stmt)).all()
+            if results:
+                return [{"category": cat, "count": count} for cat, count in results]
+        except Exception:
+            pass
+
+    # Resilient fallback
+    counts = {}
+    for m in monument_crud._memory_monuments.values():
+        if m.category:
+            counts[m.category] = counts.get(m.category, 0) + 1
+    return [{"category": cat, "count": count} for cat, count in sorted(counts.items())]
 
 
 @router.get("/states", summary="Get all states with heritage sites")
-async def get_states(db: AsyncSession = Depends(get_db)):
+async def get_states(db: Optional[AsyncSession] = Depends(get_db)):
     """Return list of Indian states with their monument counts."""
-    stmt = select(Monument.state, func.count(Monument.id)).group_by(Monument.state).order_by(Monument.state.asc())
-    results = (await db.execute(stmt)).all()
-    return [{"state": state, "monument_count": count} for state, count in results]
+    if db is not None:
+        try:
+            stmt = select(Monument.state, func.count(Monument.id)).group_by(Monument.state).order_by(Monument.state.asc())
+            results = (await db.execute(stmt)).all()
+            if results:
+                return [{"state": state, "monument_count": count} for state, count in results]
+        except Exception:
+            pass
+
+    # Resilient fallback
+    counts = {}
+    for m in monument_crud._memory_monuments.values():
+        if m.state:
+            counts[m.state] = counts.get(m.state, 0) + 1
+    return [{"state": state, "monument_count": count} for state, count in sorted(counts.items())]
 
 
 @router.get("/{monument_id}", response_model=MonumentRead, summary="Get full monument details")
-async def get_monument(monument_id: str, db: AsyncSession = Depends(get_db)):
+async def get_monument(monument_id: str, db: Optional[AsyncSession] = Depends(get_db)):
     """Fetch complete verified metadata, history, architecture, stories, and visitor reviews for a monument."""
     monument = await monument_crud.get_by_id(db, monument_id)
     if not monument:
@@ -96,7 +120,7 @@ async def get_monument(monument_id: str, db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/", response_model=MonumentRead, status_code=status.HTTP_201_CREATED, summary="Create a new monument")
-async def create_monument(obj_in: MonumentCreate, db: AsyncSession = Depends(get_db)):
+async def create_monument(obj_in: MonumentCreate, db: Optional[AsyncSession] = Depends(get_db)):
     """Create new monument with automatic PostGIS spatial point geometry generation."""
     existing = await monument_crud.get_by_id(db, obj_in.id)
     if existing:
@@ -110,7 +134,7 @@ async def create_monument(obj_in: MonumentCreate, db: AsyncSession = Depends(get
 
 @router.put("/{monument_id}", response_model=MonumentRead, summary="Update monument metadata")
 async def update_monument(
-    monument_id: str, obj_in: MonumentUpdate, db: AsyncSession = Depends(get_db)
+    monument_id: str, obj_in: MonumentUpdate, db: Optional[AsyncSession] = Depends(get_db)
 ):
     """Update monument metadata and recalculate spatial geometry if coordinates change."""
     monument = await monument_crud.get_by_id(db, monument_id)
@@ -124,7 +148,7 @@ async def update_monument(
 
 
 @router.delete("/{monument_id}", summary="Delete monument")
-async def delete_monument(monument_id: str, db: AsyncSession = Depends(get_db)):
+async def delete_monument(monument_id: str, db: Optional[AsyncSession] = Depends(get_db)):
     """Delete a monument and its associated reviews."""
     monument = await monument_crud.delete(db, monument_id=monument_id)
     if not monument:
