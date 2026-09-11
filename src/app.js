@@ -10,19 +10,90 @@ import { timelineEras } from './data/timeline.js';
 import { giProducts, getProductsByState, getProductsBySite, getProductsByCategory } from './data/giProducts.js';
 import { getMonumentReviews, getMonumentRatingStats, saveMonumentReview } from './data/monumentReviews.js';
 
+// Preloaded reliable fallback media assets
+const FALLBACK_HERITAGE_IMG = 'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&q=80&w=800';
+const FALLBACK_CRAFT_IMG = 'https://images.unsplash.com/photo-1606293926075-69a00dbfde81?auto=format&fit=crop&q=80&w=800';
+
+// Prototype simulation clusters for resilient testing & instant GPS fallback
+const SIMULATED_CLUSTERS = [
+  {
+    id: 'agra',
+    name: 'Agra & Taj Mahal Cluster',
+    city: 'Agra',
+    lat: 27.1751,
+    lng: 78.0421,
+    altitude: 171,
+    speed: 1.2,
+    heading: 45,
+    siteId: 'taj-mahal',
+    previewImage: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&q=80&w=1200'
+  },
+  {
+    id: 'delhi',
+    name: 'Delhi Heritage Cluster',
+    city: 'Delhi',
+    lat: 28.6562,
+    lng: 77.2410,
+    altitude: 216,
+    speed: 1.4,
+    heading: 90,
+    siteId: 'red-fort',
+    previewImage: 'https://images.unsplash.com/photo-1598324789736-4861f89564a0?auto=format&fit=crop&q=80&w=1200'
+  },
+  {
+    id: 'jaipur',
+    name: 'Jaipur Pink City Cluster',
+    city: 'Jaipur',
+    lat: 26.9855,
+    lng: 75.8513,
+    altitude: 431,
+    speed: 0.9,
+    heading: 195,
+    siteId: 'amer-fort',
+    previewImage: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&q=80&w=1200'
+  },
+  {
+    id: 'hampi',
+    name: 'Hampi Ruins Cluster',
+    city: 'Hampi',
+    lat: 15.3350,
+    lng: 76.4600,
+    altitude: 467,
+    speed: 1.1,
+    heading: 130,
+    siteId: 'hampi',
+    previewImage: 'https://images.unsplash.com/photo-1600100397608-2e06718a38c2?auto=format&fit=crop&q=80&w=1200'
+  }
+];
+
 // ==================== APP INITIALIZATION ====================
 class VirasatApp {
   constructor() {
     this.cameraStream = null;
     this.quizState = null;
     this.activeMapState = null;
-    // HUD & Geolocation streaming state
-    this.userPosition = null; // { lat, lng, accuracy, speed, altitude, heading, timestamp }
-    this.deviceHeading = null; // degrees from north
+    // Prototype Testing & Simulation State
+    this.currentCluster = SIMULATED_CLUSTERS[0];
+    this.isSimulatedLocation = true;
+    this.isSimulatedCamera = false;
+    this.driftInterval = null;
+    this._bannerTimeout = null;
+    // Default coordinates initialized to default cluster immediately so prototype is never in a broken or empty state
+    this.userPosition = {
+      lat: this.currentCluster.lat,
+      lng: this.currentCluster.lng,
+      accuracy: 14,
+      speed: this.currentCluster.speed,
+      altitude: this.currentCluster.altitude,
+      heading: this.currentCluster.heading,
+      timestamp: Date.now(),
+      isSimulated: true
+    };
+    this.deviceHeading = 45;
     this.globalGeoWatchId = null;
-    this.hudTarget = null; // selected heritage site object
+    this.hudTarget = findSiteById(this.currentCluster.siteId) || null;
     this.hudActive = false;
-    this.alertCooldowns = new Map(); // siteId -> last alert timestamp
+    this.alertCooldowns = new Map();
     this.nearestSites = [];
     this.userMarkerEl = null;
     this.findSiteById = findSiteById;
@@ -43,6 +114,7 @@ class VirasatApp {
   init() {
     this.setupNavbar();
     this.setupHero();
+    this.setupGpsBanner();
     this.setupScanner();
     this.setupMap();
     this.setupTimeline();
@@ -246,27 +318,64 @@ class VirasatApp {
   }
 
   async startCamera() {
-    try {
-      const video = document.getElementById('cameraFeed');
-      const placeholder = document.getElementById('scannerPlaceholder');
-      const btnStart = document.getElementById('btnStartCamera');
-      const btnCapture = document.getElementById('btnCapture');
+    const video = document.getElementById('cameraFeed');
+    const simView = document.getElementById('scannerSimulatedView');
+    const placeholder = document.getElementById('scannerPlaceholder');
+    const btnStart = document.getElementById('btnStartCamera');
+    const btnCapture = document.getElementById('btnCapture');
 
-      this.cameraStream = await navigator.mediaDevices.getUserMedia({
+    try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('Camera API not supported in this environment');
+      }
+
+      // 4-second timeout to prevent indefinite hanging on camera initialization
+      const streamPromise = navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
       });
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Camera acquisition timed out')), 4000)
+      );
 
+      this.cameraStream = await Promise.race([streamPromise, timeoutPromise]);
       video.srcObject = this.cameraStream;
-      placeholder.style.display = 'none';
-      btnStart.style.display = 'none';
-      btnCapture.style.display = 'inline-flex';
-
-      document.getElementById('scannerViewfinder').classList.add('scanning');
-
-      // Activate HUD
-      this.activateHud();
+      video.style.display = 'block';
+      if (simView) simView.style.display = 'none';
+      this.isSimulatedCamera = false;
     } catch (err) {
-      alert('Camera access denied or unavailable. Please upload a photo instead.');
+      console.info('Live camera unavailable or denied. Seamlessly activating interactive AR viewfinder preview:', err.message);
+      this.launchSimulatedCamera();
+    }
+
+    placeholder.style.display = 'none';
+    btnStart.style.display = 'none';
+    btnCapture.style.display = 'inline-flex';
+    document.getElementById('scannerViewfinder').classList.add('scanning');
+
+    // Activate HUD
+    this.activateHud();
+  }
+
+  launchSimulatedCamera() {
+    this.isSimulatedCamera = true;
+    const video = document.getElementById('cameraFeed');
+    const simView = document.getElementById('scannerSimulatedView');
+    const simBackdrop = document.getElementById('scannerSimBackdrop');
+    const notice = document.getElementById('scannerNotice');
+
+    if (video) video.style.display = 'none';
+    if (simView) {
+      simView.style.display = 'block';
+      const previewUrl = this.hudTarget?.image || this.currentCluster?.previewImage || FALLBACK_HERITAGE_IMG;
+      if (simBackdrop) simBackdrop.src = previewUrl;
+    }
+
+    if (notice) {
+      notice.textContent = '📷 AR Viewfinder Demo Mode · Tap Capture to analyze site';
+      notice.style.display = 'block';
+      setTimeout(() => {
+        if (notice) notice.style.display = 'none';
+      }, 5000);
     }
   }
 
@@ -276,9 +385,7 @@ class VirasatApp {
     if (hud) {
       hud.style.display = 'block';
       this.hudActive = true;
-      if (!this.globalGeoWatchId) {
-        this.startGlobalGeolocationStreaming();
-      } else if (this.userPosition) {
+      if (this.userPosition) {
         this.updateHudWithLiveStream();
       }
       this.startOrientationTracking();
@@ -293,37 +400,186 @@ class VirasatApp {
     window.removeEventListener('deviceorientationabsolute', this._orientationHandler);
   }
 
+  setupGpsBanner() {
+    const banner = document.getElementById('gpsStatusBanner');
+    const btnCluster = document.getElementById('gpsClusterBtn');
+    const btnClose = document.getElementById('gpsBannerClose');
+    const dropdown = document.getElementById('gpsClusterDropdown');
+
+    if (!banner) return;
+
+    btnCluster?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+    });
+
+    btnClose?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      banner.style.display = 'none';
+    });
+
+    document.addEventListener('click', (e) => {
+      if (dropdown && !dropdown.contains(e.target) && e.target !== btnCluster) {
+        dropdown.style.display = 'none';
+      }
+    });
+
+    dropdown?.querySelectorAll('.dropdown-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const clusterId = item.dataset.cluster;
+        this.switchCluster(clusterId);
+        dropdown.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+        dropdown.style.display = 'none';
+      });
+    });
+  }
+
+  showGpsStatusBanner(type, text, autoHideMs = 0) {
+    const banner = document.getElementById('gpsStatusBanner');
+    const textEl = document.getElementById('gpsBannerText');
+    const clusterNameEl = document.getElementById('gpsClusterName');
+
+    if (!banner || !textEl) return;
+
+    banner.className = `gps-status-banner ${type}`;
+    textEl.textContent = text;
+    if (clusterNameEl && this.currentCluster) {
+      clusterNameEl.textContent = this.currentCluster.city;
+    }
+    banner.style.display = 'block';
+
+    if (this._bannerTimeout) clearTimeout(this._bannerTimeout);
+    if (autoHideMs > 0) {
+      this._bannerTimeout = setTimeout(() => {
+        banner.style.display = 'none';
+      }, autoHideMs);
+    }
+  }
+
+  switchCluster(clusterId) {
+    const cluster = SIMULATED_CLUSTERS.find(c => c.id === clusterId);
+    if (!cluster) return;
+
+    this.currentCluster = cluster;
+    this.isSimulatedLocation = true;
+    this.userPosition = {
+      lat: cluster.lat,
+      lng: cluster.lng,
+      accuracy: 10,
+      speed: cluster.speed,
+      altitude: cluster.altitude,
+      heading: cluster.heading,
+      timestamp: Date.now(),
+      isSimulated: true
+    };
+
+    const clusterSite = findSiteById(cluster.siteId);
+    if (clusterSite) {
+      this.hudTarget = clusterSite;
+    }
+
+    this.updateUserMapMarker();
+    this.alertCooldowns.delete(cluster.siteId);
+    this.checkProximityAlerts();
+
+    if (this.hudActive) {
+      this.updateHudWithLiveStream();
+      const simBackdrop = document.getElementById('scannerSimBackdrop');
+      if (simBackdrop && cluster.previewImage) {
+        simBackdrop.src = cluster.previewImage;
+      }
+    }
+
+    this.showGpsStatusBanner('demo', `🛰️ Region: ${cluster.name} (Demo Mode)`, 4500);
+  }
+
   startGlobalGeolocationStreaming() {
+    this.showGpsStatusBanner('calibrating', '🛰️ Calibrating GPS... Exploring demo view');
+    this.startMicroDriftSimulation();
+
+    // Trigger initial updates immediately with cluster coords so UI is never blank
+    this.updateUserMapMarker();
+    this.checkProximityAlerts();
+
     if (!navigator.geolocation) {
-      console.warn('Geolocation API is not supported by this environment.');
-      const hudLat = document.getElementById('hudLat');
-      if (hudLat) hudLat.textContent = 'GPS N/A';
+      console.info('Geolocation API unavailable; maintaining active demo cluster view.');
+      this.showGpsStatusBanner('demo', `🛰️ Exploring demo view · ${this.currentCluster.name}`);
       return;
     }
 
     const options = {
       enableHighAccuracy: true,
-      maximumAge: 1000,
-      timeout: 10000
+      maximumAge: 3000,
+      timeout: 7000
     };
 
-    this.globalGeoWatchId = navigator.geolocation.watchPosition(
-      (pos) => this.handleGeolocationUpdate(pos),
-      (err) => this.handleGeolocationError(err),
-      options
-    );
+    // 2.5-second fallback: if GPS hasn't locked yet, display gentle demo banner
+    const fallbackTimer = setTimeout(() => {
+      if (this.isSimulatedLocation) {
+        this.showGpsStatusBanner('demo', `🛰️ Exploring demo view · ${this.currentCluster.name}`);
+      }
+    }, 2500);
+
+    try {
+      this.globalGeoWatchId = navigator.geolocation.watchPosition(
+        (pos) => {
+          clearTimeout(fallbackTimer);
+          this.handleGeolocationUpdate(pos, false);
+        },
+        (err) => {
+          clearTimeout(fallbackTimer);
+          this.handleGeolocationError(err);
+        },
+        options
+      );
+    } catch (e) {
+      clearTimeout(fallbackTimer);
+      this.showGpsStatusBanner('demo', `🛰️ Exploring demo view · ${this.currentCluster.name}`);
+    }
   }
 
-  handleGeolocationUpdate(pos) {
+  startMicroDriftSimulation() {
+    if (this.driftInterval) clearInterval(this.driftInterval);
+    let step = 0;
+    this.driftInterval = setInterval(() => {
+      if (!this.isSimulatedLocation || !this.userPosition) return;
+      step++;
+      const dLat = Math.sin(step * 0.3) * 0.00002;
+      const dLng = Math.cos(step * 0.3) * 0.00003;
+      this.userPosition.lat = this.currentCluster.lat + dLat;
+      this.userPosition.lng = this.currentCluster.lng + dLng;
+      this.userPosition.speed = 1.1 + Math.sin(step) * 0.4;
+      this.userPosition.heading = (this.currentCluster.heading + step * 2) % 360;
+      this.userPosition.timestamp = Date.now();
+
+      this.updateUserMapMarker();
+      if (this.hudActive) {
+        this.updateHudWithLiveStream();
+      }
+    }, 3500);
+  }
+
+  handleGeolocationUpdate(pos, isSimulated = false) {
     const coords = pos.coords;
+    if (!isSimulated) {
+      this.isSimulatedLocation = false;
+      if (this.driftInterval) {
+        clearInterval(this.driftInterval);
+        this.driftInterval = null;
+      }
+      this.showGpsStatusBanner('locked', `🛰️ Live GPS Locked (±${Math.round(coords.accuracy || 10)}m)`, 4000);
+    }
+
     this.userPosition = {
       lat: coords.latitude,
       lng: coords.longitude,
       accuracy: coords.accuracy || 10,
-      speed: coords.speed !== null && !isNaN(coords.speed) ? coords.speed : 0,
-      altitude: coords.altitude !== null && !isNaN(coords.altitude) ? coords.altitude : null,
-      heading: coords.heading !== null && !isNaN(coords.heading) ? coords.heading : null,
-      timestamp: pos.timestamp || Date.now()
+      speed: coords.speed !== null && !isNaN(coords.speed) ? coords.speed : (this.userPosition?.speed || 0),
+      altitude: coords.altitude !== null && !isNaN(coords.altitude) ? coords.altitude : (this.userPosition?.altitude || 171),
+      heading: coords.heading !== null && !isNaN(coords.heading) ? coords.heading : (this.userPosition?.heading || 45),
+      timestamp: pos.timestamp || Date.now(),
+      isSimulated: isSimulated
     };
 
     // 1. Update live user marker on SVG map
@@ -339,13 +595,12 @@ class VirasatApp {
   }
 
   handleGeolocationError(err) {
-    console.warn('Geolocation stream notification:', err.message);
-    const hudLat = document.getElementById('hudLat');
-    const hudLng = document.getElementById('hudLng');
-    const hudAcc = document.getElementById('hudAccuracy');
-    if (hudLat && !this.userPosition) hudLat.textContent = 'GPS Searching...';
-    if (hudLng && !this.userPosition) hudLng.textContent = '';
-    if (hudAcc && !this.userPosition) hudAcc.textContent = '';
+    console.info('GPS signal calibrating or unavailable; smoothly continuing with demo cluster view:', err?.message || '');
+    this.isSimulatedLocation = true;
+    this.showGpsStatusBanner('demo', `🛰️ Exploring demo view · ${this.currentCluster.name}`);
+    if (!this.driftInterval) {
+      this.startMicroDriftSimulation();
+    }
   }
 
   updateHudWithLiveStream() {
@@ -659,15 +914,25 @@ class VirasatApp {
   captureImage() {
     const video = document.getElementById('cameraFeed');
     const canvas = document.getElementById('captureCanvas');
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    canvas.getContext('2d').drawImage(video, 0, 0);
+    const simBackdrop = document.getElementById('scannerSimBackdrop');
 
-    this.uploadedFileName = null;
+    if (this.isSimulatedCamera && simBackdrop) {
+      canvas.width = simBackdrop.naturalWidth || 800;
+      canvas.height = simBackdrop.naturalHeight || 600;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(simBackdrop, 0, 0, canvas.width, canvas.height);
+      this.uploadedFileName = (this.hudTarget ? this.hudTarget.name : (this.currentCluster ? this.currentCluster.name : 'Taj Mahal')) + '.jpg';
+    } else {
+      canvas.width = video.videoWidth || 640;
+      canvas.height = video.videoHeight || 480;
+      canvas.getContext('2d').drawImage(video, 0, 0);
+      this.uploadedFileName = null;
+    }
 
-    // Stop camera
+    // Stop live stream if active
     if (this.cameraStream) {
       this.cameraStream.getTracks().forEach(t => t.stop());
+      this.cameraStream = null;
     }
 
     this.processImage();
@@ -1595,8 +1860,8 @@ IMPORTANT: confidence should be 0-100 based on how certain you are. Only return 
     lightbox.style.display = 'flex';
 
     content.innerHTML = `
-      <div style="width:100%;height:250px;border-radius:var(--radius-lg);overflow:hidden;margin-bottom:var(--space-6);">
-        <img src="${site.image || 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&q=80&w=800'}" style="width:100%;height:100%;object-fit:cover;" alt="${site.name}">
+      <div class="loading-skeleton" style="width:100%;height:250px;border-radius:var(--radius-lg);overflow:hidden;margin-bottom:var(--space-6);">
+        <img src="${site.image || FALLBACK_HERITAGE_IMG}" class="img-fade-in" style="width:100%;height:100%;object-fit:cover;" alt="${site.name}" loading="lazy" onload="this.parentElement.classList.remove('loading-skeleton'); this.classList.add('loaded');" onerror="this.onerror=null; this.src='${FALLBACK_HERITAGE_IMG}'; this.parentElement.classList.remove('loading-skeleton'); this.classList.add('loaded');">
       </div>
       <div style="text-align:center;">
         <h3 style="font-size:var(--text-3xl);font-weight:800;margin:var(--space-3) 0;">${site.name}</h3>
@@ -1951,8 +2216,8 @@ IMPORTANT: confidence should be 0-100 based on how certain you are. Only return 
           <div class="gallery-card-rating">
             <span>⭐</span> ${stats.average}
           </div>
-          <div class="gallery-card-visual" style="background: linear-gradient(135deg, ${bgColor}33, ${bgColor}11);">
-            <img src="${site.image || 'https://images.unsplash.com/photo-1600100397608-2e06718a38c2?q=80&w=800&auto=format&fit=crop'}" alt="${site.name}" loading="lazy">
+          <div class="gallery-card-visual loading-skeleton" style="background: linear-gradient(135deg, ${bgColor}33, ${bgColor}11);">
+            <img src="${site.image || FALLBACK_HERITAGE_IMG}" alt="${site.name}" class="img-fade-in" loading="lazy" onload="this.parentElement.classList.remove('loading-skeleton'); this.classList.add('loaded');" onerror="this.onerror=null; this.src='${FALLBACK_HERITAGE_IMG}'; this.parentElement.classList.remove('loading-skeleton'); this.classList.add('loaded');">
           </div>
           <div class="gallery-card-body">
             <div class="gallery-card-name">${site.name}</div>
@@ -2171,8 +2436,8 @@ IMPORTANT: confidence should be 0-100 based on how certain you are. Only return 
       
       grid.innerHTML = products.map((p, i) => `
         <div class="shop-card" style="animation: fadeInUp 0.4s ease ${i * 0.05}s both;">
-          <div class="shop-card-visual">
-            <img src="${p.image || 'https://images.unsplash.com/photo-1606293926075-69a00dbfde81?q=80&w=800&auto=format&fit=crop'}" alt="${p.name}" loading="lazy">
+          <div class="shop-card-visual loading-skeleton">
+            <img src="${p.image || FALLBACK_CRAFT_IMG}" alt="${p.name}" class="img-fade-in" loading="lazy" onload="this.parentElement.classList.remove('loading-skeleton'); this.classList.add('loaded');" onerror="this.onerror=null; this.src='${FALLBACK_CRAFT_IMG}'; this.parentElement.classList.remove('loading-skeleton'); this.classList.add('loaded');">
             ${p.giTag ? '<span class="shop-card-badge">GI Tagged</span>' : ''}
           </div>
           <div class="shop-card-body">

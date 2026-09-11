@@ -62,6 +62,26 @@
     </div>
   </nav>
 
+  <!-- ===== GENTLE NON-BLOCKING GPS STATUS BANNER ===== -->
+  <div id="gpsStatusBanner" class="gps-status-banner calibrating" style="display:none;" aria-live="polite">
+    <div class="gps-banner-pill">
+      <span class="gps-banner-indicator"></span>
+      <span class="gps-banner-text" id="gpsBannerText">🛰️ Calibrating GPS... Exploring demo view</span>
+      <button class="gps-cluster-btn" id="gpsClusterBtn" title="Switch prototype monument cluster">
+        📍 <span id="gpsClusterName">Agra Cluster</span> ▾
+      </button>
+      <button class="gps-banner-close" id="gpsBannerClose" aria-label="Dismiss banner">&times;</button>
+    </div>
+    <!-- Quick cluster selection dropdown -->
+    <div class="gps-cluster-dropdown" id="gpsClusterDropdown" style="display:none;">
+      <div class="dropdown-header">Select Prototype Region</div>
+      <div class="dropdown-item active" data-cluster="agra">🏛️ Agra (Taj Mahal & Agra Fort)</div>
+      <div class="dropdown-item" data-cluster="delhi">🏰 Delhi (Red Fort & Qutub Minar)</div>
+      <div class="dropdown-item" data-cluster="jaipur">🏯 Jaipur (Amer Fort & Hawa Mahal)</div>
+      <div class="dropdown-item" data-cluster="hampi">🛕 Hampi (Vijayanagara & Virupaksha)</div>
+    </div>
+  </div>
+
   <!-- ===== HERO SECTION ===== -->
   <section class="hero" id="hero">
     <div class="hero-bg">
@@ -128,6 +148,16 @@
         <div class="scanner-overlay" id="scannerOverlay">
           <div class="scan-line"></div>
         </div>
+        <!-- Simulated AR Viewfinder Backdrop for Camera Fallback -->
+        <div class="scanner-simulated-view" id="scannerSimulatedView" style="display:none;">
+          <img class="scanner-sim-backdrop" id="scannerSimBackdrop" src="https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&q=80&w=1200" alt="Simulated Viewfinder">
+          <div class="scanner-sim-badge">
+            <span class="sim-dot"></span>
+            <span>SIMULATED AR PREVIEW</span>
+          </div>
+        </div>
+        <!-- Non-blocking Scanner Notice Pill -->
+        <div class="scanner-notice-pill" id="scannerNotice" style="display:none;"></div>
         <!-- ===== AR HUD OVERLAY ===== -->
         <div class="scanner-hud" id="scannerHud" style="display:none;">
           <!-- Top-left: GPS Coordinates -->

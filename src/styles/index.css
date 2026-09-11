@@ -2921,4 +2921,293 @@ body { top: 0px !important; position: relative !important; }
   }
 }
 
+/* ===========================
+   GENTLE NON-BLOCKING GPS STATUS BANNER
+   =========================== */
+
+.gps-status-banner {
+  position: fixed;
+  top: 76px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999;
+  pointer-events: none;
+  animation: bannerSlideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes bannerSlideDown {
+  from { opacity: 0; transform: translate(-50%, -16px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+
+.gps-banner-pill {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 14px;
+  background: rgba(11, 16, 33, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 9999px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.45);
+  font-size: 12px;
+  font-weight: 500;
+  color: #fff;
+  transition: all 0.3s ease;
+}
+
+.gps-banner-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* State: Calibrating */
+.gps-status-banner.calibrating .gps-banner-pill {
+  border-color: rgba(0, 229, 255, 0.35);
+}
+.gps-status-banner.calibrating .gps-banner-indicator {
+  background: #00E5FF;
+  box-shadow: 0 0 10px #00E5FF;
+  animation: pulseBeacon 1.5s infinite;
+}
+
+/* State: Demo view */
+.gps-status-banner.demo .gps-banner-pill {
+  border-color: rgba(255, 215, 0, 0.4);
+}
+.gps-status-banner.demo .gps-banner-indicator {
+  background: #FFD700;
+  box-shadow: 0 0 10px #FFD700;
+  animation: pulseBeacon 2s infinite;
+}
+
+/* State: Locked */
+.gps-status-banner.locked .gps-banner-pill {
+  border-color: rgba(105, 240, 174, 0.45);
+}
+.gps-status-banner.locked .gps-banner-indicator {
+  background: #69F0AE;
+  box-shadow: 0 0 10px #69F0AE;
+}
+
+@keyframes pulseBeacon {
+  0% { transform: scale(0.9); opacity: 0.7; }
+  50% { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.7; }
+}
+
+.gps-banner-text {
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+.gps-cluster-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: var(--royal-gold);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  white-space: nowrap;
+}
+
+.gps-cluster-btn:hover {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: var(--royal-gold);
+}
+
+.gps-banner-close {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 2px;
+  transition: color 0.2s;
+}
+
+.gps-banner-close:hover {
+  color: #fff;
+}
+
+/* Cluster Dropdown */
+.gps-cluster-dropdown {
+  pointer-events: auto;
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 260px;
+  background: rgba(15, 20, 42, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 215, 0, 0.25);
+  border-radius: 14px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6);
+  padding: 8px;
+  z-index: 1001;
+  animation: bannerSlideDown 0.25s ease forwards;
+}
+
+.dropdown-header {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: rgba(255, 255, 255, 0.45);
+  padding: 6px 10px 4px;
+}
+
+.dropdown-item {
+  padding: 8px 12px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.85);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dropdown-item:hover {
+  background: rgba(255, 215, 0, 0.15);
+  color: #fff;
+}
+
+.dropdown-item.active {
+  background: rgba(0, 229, 255, 0.15);
+  color: #00E5FF;
+  font-weight: 600;
+}
+
+/* ===========================
+   SIMULATED AR VIEWFINDER FALLBACK
+   =========================== */
+
+.scanner-simulated-view {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.scanner-sim-backdrop {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.82) contrast(1.08);
+  transform: scale(1.05);
+  animation: arCameraPan 24s infinite alternate ease-in-out;
+}
+
+@keyframes arCameraPan {
+  0%   { transform: scale(1.05) translate(0, 0); }
+  50%  { transform: scale(1.12) translate(-2%, -1%); }
+  100% { transform: scale(1.08) translate(1%, 2%); }
+}
+
+.scanner-sim-badge {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(11, 16, 33, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  border-radius: 20px;
+  padding: 3px 12px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #00E5FF;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 3;
+}
+
+.sim-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #00E5FF;
+  box-shadow: 0 0 8px #00E5FF;
+  animation: pulseBeacon 1.2s infinite;
+}
+
+.scanner-notice-pill {
+  position: absolute;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(11, 16, 33, 0.9);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 215, 0, 0.4);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #FFD700;
+  z-index: 10;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  animation: bannerSlideDown 0.3s ease forwards;
+  pointer-events: none;
+}
+
+/* ===========================
+   SKELETON SHIMMER LOADERS & GRACEFUL IMAGES
+   =========================== */
+
+.loading-skeleton {
+  position: relative !important;
+  overflow: hidden !important;
+  background: #14192b !important;
+}
+
+.loading-skeleton::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.07) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: skeletonShimmerSweep 1.6s infinite;
+  pointer-events: none;
+  z-index: 3;
+}
+
+@keyframes skeletonShimmerSweep {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.img-fade-in {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.img-fade-in.loaded {
+  opacity: 1;
+}
+
+
 
