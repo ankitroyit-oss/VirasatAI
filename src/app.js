@@ -350,10 +350,8 @@ class VirasatApp {
     placeholder.style.display = 'none';
     btnStart.style.display = 'none';
     btnCapture.style.display = 'inline-flex';
-    document.getElementById('scannerViewfinder').classList.add('scanning');
-
-    // Activate HUD
-    this.activateHud();
+    // Start orientation tracking in background for post-scan compass
+    this.startOrientationTracking();
   }
 
   launchSimulatedCamera() {
@@ -1345,7 +1343,33 @@ IMPORTANT: confidence should be 0-100 based on how certain you are. Only return 
     result.style.display = 'block';
     const stats = getMonumentRatingStats(site.id);
 
+    // Live Geolocation calculations for this scanned monument
+    let distStr = '---';
+    let bearingDeg = 0;
+    let relDir = 'Direct Path';
+    if (this.userPosition && site.location?.coordinates) {
+      const [sLat, sLng] = site.location.coordinates;
+      const d = this.calculateDistance(this.userPosition.lat, this.userPosition.lng, sLat, sLng);
+      distStr = d < 1 ? `${Math.round(d * 1000)} m` : `${d.toFixed(1)} km`;
+      bearingDeg = Math.round(this.calculateBearing(this.userPosition.lat, this.userPosition.lng, sLat, sLng));
+      relDir = this.getRelativeDirection(bearingDeg, this.deviceHeading || this.userPosition.heading || 0);
+    }
+
+    // Nearby monuments cluster relative to this scanned monument
+    const nearbyToSite = heritageSites
+      .filter(s => s.id !== site.id)
+      .map(s => {
+        const d = this.calculateDistance(
+          site.location.coordinates[0], site.location.coordinates[1],
+          s.location.coordinates[0], s.location.coordinates[1]
+        );
+        return { site: s, dist: d };
+      })
+      .sort((a, b) => a.dist - b.dist)
+      .slice(0, 4);
+
     const tabs = [
+      { id: 'telemetry', label: '📍 GPS & Nearby', content: this.renderTelemetryTab(site, distStr, bearingDeg, relDir, nearbyToSite) },
       { id: 'history', label: '📖 History', content: this.renderHistoryTab(site) },
       { id: 'cuisine', label: '🍛 Cuisine', content: this.renderCuisineTab(site) },
       { id: 'art', label: '🎨 Art & Craft', content: this.renderArtTab(site) },
@@ -1365,7 +1389,65 @@ IMPORTANT: confidence should be 0-100 based on how certain you are. Only return 
         </div>
         <span class="result-confidence">${confidence}% match</span>
       </div>
+
       <p style="color:rgba(255,255,255,0.65);margin-bottom:var(--space-4);font-size:var(--text-sm);line-height:1.7;">${site.significance}</p>
+
+      <!-- ===== POST-SCAN LIVE GEOLOCATION & NEARBY SITES DASHBOARD ===== -->
+      <div class="result-telemetry-panel">
+        <div class="telemetry-panel-header">
+          <div class="telemetry-panel-title">
+            <span class="telemetry-panel-icon">📍</span>
+            <span>GEOLOCATION & NEARBY HERITAGE SITES</span>
+          </div>
+          <span class="telemetry-live-badge"><span class="badge-dot"></span> LIVE GPS STREAM</span>
+        </div>
+        
+        <div class="result-telemetry-grid">
+          <!-- Coordinates & Distance -->
+          <div class="res-telemetry-box">
+            <div class="res-tel-label">📍 MONUMENT COORDINATES & DISTANCE</div>
+            <div class="res-tel-main">${distStr} <span class="res-tel-unit">away</span></div>
+            <div class="res-tel-coords">🏛️ Site: <strong>${site.location.coordinates[0].toFixed(4)}°N, ${site.location.coordinates[1].toFixed(4)}°E</strong></div>
+            <div class="res-tel-sub">
+              ${this.userPosition ? `📍 Your GPS: ${this.userPosition.lat.toFixed(4)}°N, ${this.userPosition.lng.toFixed(4)}°E (±${Math.round(this.userPosition.accuracy || 10)}m)` : 'GPS Active'}
+            </div>
+          </div>
+
+          <!-- Compass & Bearing -->
+          <div class="res-telemetry-box">
+            <div class="res-tel-label">🧭 COMPASS & BEARING VECTOR</div>
+            <div class="res-compass-row">
+              <div class="res-compass-ring">
+                <span class="res-compass-n">N</span>
+                <div class="res-compass-needle" style="transform: translateX(-50%) rotate(${bearingDeg}deg);"></div>
+              </div>
+              <div class="res-compass-info">
+                <div class="res-tel-main">${bearingDeg}°</div>
+                <div class="res-compass-rel">${relDir}</div>
+                <div class="res-tel-sub">Elev: ${this.userPosition?.altitude ? Math.round(this.userPosition.altitude) + 'm ASL' : '171m ASL'} · ⚡ ${((this.userPosition?.speed || 0) * 3.6).toFixed(1)} km/h</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Nearby Monuments Cluster -->
+          <div class="res-telemetry-box res-telemetry-nearby-box">
+            <div class="res-tel-label">🏛️ NEARBY SITES IN ${site.location.state.toUpperCase()}</div>
+            <div class="res-nearby-grid">
+              ${nearbyToSite.map(n => `
+                <div class="res-nearby-card" onclick="window.app?.showSiteLightbox(window.app?.findSiteById('${n.site.id}'))" title="View details for ${n.site.name}">
+                  <span class="res-nearby-icon">${n.site.emoji}</span>
+                  <div class="res-nearby-details">
+                    <span class="res-nearby-title">${n.site.name}</span>
+                    <span class="res-nearby-city">${n.site.location.city}</span>
+                  </div>
+                  <span class="res-nearby-dist-pill">${n.dist < 1 ? Math.round(n.dist * 1000) + ' m' : n.dist.toFixed(1) + ' km'}</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="result-tabs">
         ${tabs.map((t, i) => `<button class="result-tab ${i === 0 ? 'active' : ''}" data-tab="${t.id}">${t.label}</button>`).join('')}
       </div>
@@ -1384,6 +1466,39 @@ IMPORTANT: confidence should be 0-100 based on how certain you are. Only return 
         document.getElementById('resultTabContent').innerHTML = tabData.content;
       });
     });
+
+    // Scroll smoothly so the user sees the identified site & telemetry
+    result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  renderTelemetryTab(site, distStr, bearingDeg, relDir, nearbyToSite) {
+    return `
+      <h4>📍 Verified Geolocation & Spatial Telemetry</h4>
+      <p style="color:rgba(255,255,255,0.7);font-size:var(--text-sm);margin-bottom:var(--space-3);">
+        Spatial telemetry calculated using live GPS streaming and spherical trigonometry.
+      </p>
+      <div style="display:flex;flex-direction:column;gap:var(--space-3);margin-bottom:var(--space-4);">
+        <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);padding:var(--space-3);border-radius:var(--radius-md);">
+          <strong style="color:var(--royal-gold);">Exact Coordinates:</strong> ${site.location.coordinates[0]}° N, ${site.location.coordinates[1]}° E (${site.location.city}, ${site.location.state})
+        </div>
+        <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);padding:var(--space-3);border-radius:var(--radius-md);">
+          <strong style="color:var(--royal-gold);">Distance from You:</strong> ${distStr} · <strong style="color:var(--royal-gold);">Bearing:</strong> ${bearingDeg}° (${relDir})
+        </div>
+      </div>
+      <h4>🏛️ Cluster Monuments in ${site.location.state}</h4>
+      <p style="color:rgba(255,255,255,0.65);font-size:var(--text-xs);margin-bottom:var(--space-2);">Tap any monument to view its complete heritage archive:</p>
+      <div style="display:flex;flex-direction:column;gap:var(--space-2);">
+        ${nearbyToSite.map(n => `
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:var(--radius-md);padding:var(--space-3);display:flex;align-items:center;justify-content:space-between;cursor:pointer;" onclick="window.app?.showSiteLightbox(window.app?.findSiteById('${n.site.id}'))">
+            <div>
+              <strong>${n.site.emoji} ${n.site.name}</strong>
+              <div style="font-size:var(--text-xs);color:rgba(255,255,255,0.5);">${n.site.location.city}, ${n.site.location.state}</div>
+            </div>
+            <span class="badge" style="background:rgba(0,229,255,0.15);color:#00E5FF;font-weight:700;">${n.dist < 1 ? Math.round(n.dist * 1000) + ' m' : n.dist.toFixed(1) + ' km'}</span>
+          </div>
+        `).join('')}
+      </div>
+    `;
   }
 
   renderHistoryTab(site) {

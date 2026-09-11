@@ -158,58 +158,7 @@
         </div>
         <!-- Non-blocking Scanner Notice Pill -->
         <div class="scanner-notice-pill" id="scannerNotice" style="display:none;"></div>
-        <!-- ===== AR HUD OVERLAY ===== -->
-        <div class="scanner-hud" id="scannerHud" style="display:none;">
-          <!-- Top-left: GPS Coordinates -->
-          <div class="hud-block hud-coords">
-            <div class="hud-label">📍 GPS LIVE STREAM</div>
-            <div class="hud-value" id="hudLat">Lat: ---.----°</div>
-            <div class="hud-value" id="hudLng">Lng: ---.----°</div>
-            <div class="hud-value hud-accuracy" id="hudAccuracy">± --- m</div>
-            <div class="hud-value hud-speed" id="hudSpeed">⚡ --- km/h</div>
-            <div class="hud-value hud-altitude" id="hudAltitude">▲ --- m ASL</div>
-          </div>
-          <!-- Top-right: Compass / Orientation -->
-          <div class="hud-block hud-compass">
-            <div class="hud-label">🧭 HEADING</div>
-            <div class="hud-value hud-heading-value" id="hudHeading">---°</div>
-            <div class="hud-value hud-direction" id="hudDirection">--</div>
-            <div class="hud-compass-ring" id="hudCompassRing">
-              <div class="compass-needle" id="compassNeedle"></div>
-              <span class="compass-n">N</span>
-              <span class="compass-e">E</span>
-              <span class="compass-s">S</span>
-              <span class="compass-w">W</span>
-            </div>
-          </div>
-          <!-- Bottom-left: Target Selector -->
-          <div class="hud-block hud-target">
-            <div class="hud-label">🎯 TARGET MONUMENT</div>
-            <select class="hud-target-select" id="hudTargetSelect">
-              <option value="">Select Target...</option>
-            </select>
-          </div>
-          <!-- Bottom-right: Distance & Bearing -->
-          <div class="hud-block hud-distance">
-            <div class="hud-label">📐 DISTANCE & BEARING</div>
-            <div class="hud-value hud-dist-value" id="hudDistance">--- km</div>
-            <div class="hud-value hud-bearing-value" id="hudBearing">Bearing: ---°</div>
-            <div class="hud-value hud-relative" id="hudRelative">--</div>
-          </div>
-          <!-- Bottom-center: Nearby Monuments Panel -->
-          <div class="hud-block hud-nearby" id="hudNearbyBlock">
-            <div class="hud-label">🏛️ NEARBY MONUMENTS</div>
-            <div id="hudNearbyList">
-              <div class="hud-nearby-item hud-value">Waiting for GPS...</div>
-            </div>
-          </div>
-          <!-- Center crosshair -->
-          <div class="hud-crosshair">
-            <div class="crosshair-h"></div>
-            <div class="crosshair-v"></div>
-            <div class="crosshair-dot"></div>
-          </div>
-        </div>
+
         <div class="scanner-placeholder" id="scannerPlaceholder">
           <div class="placeholder-icon">📷</div>
           <p>Tap to activate camera</p>
