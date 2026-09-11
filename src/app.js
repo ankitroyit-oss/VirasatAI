@@ -104,7 +104,7 @@ class VirasatApp {
       if (keyFromUrl) {
         localStorage.setItem('virasatai_gemini_key', keyFromUrl);
       }
-    } catch (_) {}
+    } catch (_) { }
     this.geminiApiKey = localStorage.getItem('virasatai_gemini_key') || null;
     this.uploadedFileName = null;
     window.app = this;
@@ -816,7 +816,7 @@ class VirasatApp {
 
     // iOS 13+ requires permission request for device orientation
     if (typeof DeviceOrientationEvent !== 'undefined' &&
-        typeof DeviceOrientationEvent.requestPermission === 'function') {
+      typeof DeviceOrientationEvent.requestPermission === 'function') {
       DeviceOrientationEvent.requestPermission()
         .then(state => {
           if (state === 'granted') {
@@ -838,7 +838,7 @@ class VirasatApp {
 
   getCardinalDirection(deg) {
     const dirs = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE',
-                  'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+      'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
     return dirs[Math.round(deg / 22.5) % 16];
   }
 
@@ -848,8 +848,8 @@ class VirasatApp {
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLon = (lon2 - lon1) * Math.PI / 180;
     const a = Math.sin(dLat / 2) ** 2 +
-              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-              Math.sin(dLon / 2) ** 2;
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLon / 2) ** 2;
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   }
 
@@ -877,10 +877,16 @@ class VirasatApp {
   }
 
   updateHudDistanceBearing() {
+    const distEl = document.getElementById('hudDistance');
+    const bearingEl = document.getElementById('hudBearing');
+    const relativeEl = document.getElementById('hudRelative');
+
+    if (!distEl && !bearingEl && !relativeEl) return;
+
     if (!this.userPosition || !this.hudTarget) {
-      document.getElementById('hudDistance').textContent = '--- km';
-      document.getElementById('hudBearing').textContent = 'Bearing: ---°';
-      document.getElementById('hudRelative').textContent = this.hudTarget ? 'Waiting for GPS...' : 'Select a target';
+      if (distEl) distEl.textContent = '--- km';
+      if (bearingEl) bearingEl.textContent = 'Bearing: ---°';
+      if (relativeEl) relativeEl.textContent = this.hudTarget ? 'Waiting for GPS...' : 'Select a target';
       return;
     }
 
@@ -898,14 +904,16 @@ class VirasatApp {
       distStr = `${Math.round(dist)} km`;
     }
 
-    document.getElementById('hudDistance').textContent = distStr;
-    document.getElementById('hudBearing').textContent = `Bearing: ${Math.round(bearing)}°`;
+    if (distEl) distEl.textContent = distStr;
+    if (bearingEl) bearingEl.textContent = `Bearing: ${Math.round(bearing)}°`;
 
     // Show relative direction if we have compass heading
-    if (this.deviceHeading !== null) {
-      document.getElementById('hudRelative').textContent = this.getRelativeDirection(bearing, this.deviceHeading);
-    } else {
-      document.getElementById('hudRelative').textContent = `→ ${this.hudTarget.location.city}`;
+    if (relativeEl) {
+      if (this.deviceHeading !== null) {
+        relativeEl.textContent = this.getRelativeDirection(bearing, this.deviceHeading);
+      } else {
+        relativeEl.textContent = `→ ${this.hudTarget.location.city}`;
+      }
     }
   }
 
@@ -2548,11 +2556,12 @@ IMPORTANT: confidence should be 0-100 based on how certain you are. Only return 
         grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:var(--space-8);color:rgba(255,255,255,0.5);">No products found for this category.</div>';
         return;
       }
-      
+
       grid.innerHTML = products.map((p, i) => `
         <div class="shop-card" style="animation: fadeInUp 0.4s ease ${i * 0.05}s both;">
           <div class="shop-card-visual loading-skeleton">
             <img src="${p.image || FALLBACK_CRAFT_IMG}" alt="${p.name}" class="img-fade-in" loading="lazy" onload="this.parentElement.classList.remove('loading-skeleton'); this.classList.add('loaded');" onerror="this.onerror=null; this.src='${FALLBACK_CRAFT_IMG}'; this.parentElement.classList.remove('loading-skeleton'); this.classList.add('loaded');">
+
             ${p.giTag ? '<span class="shop-card-badge">GI Tagged</span>' : ''}
           </div>
           <div class="shop-card-body">
