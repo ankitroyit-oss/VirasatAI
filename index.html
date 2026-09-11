@@ -132,10 +132,12 @@
         <div class="scanner-hud" id="scannerHud" style="display:none;">
           <!-- Top-left: GPS Coordinates -->
           <div class="hud-block hud-coords">
-            <div class="hud-label">📍 GPS COORDINATES</div>
+            <div class="hud-label">📍 GPS LIVE STREAM</div>
             <div class="hud-value" id="hudLat">Lat: ---.----°</div>
             <div class="hud-value" id="hudLng">Lng: ---.----°</div>
             <div class="hud-value hud-accuracy" id="hudAccuracy">± --- m</div>
+            <div class="hud-value hud-speed" id="hudSpeed">⚡ --- km/h</div>
+            <div class="hud-value hud-altitude" id="hudAltitude">▲ --- m ASL</div>
           </div>
           <!-- Top-right: Compass / Orientation -->
           <div class="hud-block hud-compass">
@@ -163,6 +165,13 @@
             <div class="hud-value hud-dist-value" id="hudDistance">--- km</div>
             <div class="hud-value hud-bearing-value" id="hudBearing">Bearing: ---°</div>
             <div class="hud-value hud-relative" id="hudRelative">--</div>
+          </div>
+          <!-- Bottom-center: Nearby Monuments Panel -->
+          <div class="hud-block hud-nearby" id="hudNearbyBlock">
+            <div class="hud-label">🏛️ NEARBY MONUMENTS</div>
+            <div id="hudNearbyList">
+              <div class="hud-nearby-item hud-value">Waiting for GPS...</div>
+            </div>
           </div>
           <!-- Center crosshair -->
           <div class="hud-crosshair">
@@ -409,6 +418,9 @@
       </div>
     </div>
   </div>
+
+  <!-- ===== PROXIMITY TOAST CONTAINER ===== -->
+  <div id="proximityToastContainer" aria-live="polite" aria-label="Nearby monument alerts"></div>
 
   <!-- Google Translate -->
   <div id="google_translate_element" style="display:none;"></div>

@@ -16,12 +16,16 @@ class VirasatApp {
     this.cameraStream = null;
     this.quizState = null;
     this.activeMapState = null;
-    // HUD state
-    this.userPosition = null; // { lat, lng, accuracy }
+    // HUD & Geolocation streaming state
+    this.userPosition = null; // { lat, lng, accuracy, speed, altitude, heading, timestamp }
     this.deviceHeading = null; // degrees from north
-    this.geoWatchId = null;
+    this.globalGeoWatchId = null;
     this.hudTarget = null; // selected heritage site object
     this.hudActive = false;
+    this.alertCooldowns = new Map(); // siteId -> last alert timestamp
+    this.nearestSites = [];
+    this.userMarkerEl = null;
+    this.findSiteById = findSiteById;
     // Gemini API
     try {
       const urlParams = new URLSearchParams(window.location.search);
@@ -47,6 +51,7 @@ class VirasatApp {
     this.setupQuiz();
     this.setupScrollAnimations();
     this.setupScrollSpy();
+    this.startGlobalGeolocationStreaming();
   }
 
   // ==================== NAVBAR ====================
@@ -265,13 +270,17 @@ class VirasatApp {
     }
   }
 
-  // ==================== AR HUD ====================
+  // ==================== AR HUD & GEOLOCATION STREAMING ====================
   activateHud() {
     const hud = document.getElementById('scannerHud');
     if (hud) {
       hud.style.display = 'block';
       this.hudActive = true;
-      this.startLocationTracking();
+      if (!this.globalGeoWatchId) {
+        this.startGlobalGeolocationStreaming();
+      } else if (this.userPosition) {
+        this.updateHudWithLiveStream();
+      }
       this.startOrientationTracking();
     }
   }
@@ -280,42 +289,255 @@ class VirasatApp {
     const hud = document.getElementById('scannerHud');
     if (hud) hud.style.display = 'none';
     this.hudActive = false;
-    if (this.geoWatchId !== null) {
-      navigator.geolocation.clearWatch(this.geoWatchId);
-      this.geoWatchId = null;
-    }
     window.removeEventListener('deviceorientation', this._orientationHandler);
     window.removeEventListener('deviceorientationabsolute', this._orientationHandler);
   }
 
-  startLocationTracking() {
+  startGlobalGeolocationStreaming() {
     if (!navigator.geolocation) {
-      document.getElementById('hudLat').textContent = 'GPS N/A';
-      document.getElementById('hudLng').textContent = '';
+      console.warn('Geolocation API is not supported by this environment.');
+      const hudLat = document.getElementById('hudLat');
+      if (hudLat) hudLat.textContent = 'GPS N/A';
       return;
     }
 
-    const options = { enableHighAccuracy: true, maximumAge: 2000, timeout: 10000 };
+    const options = {
+      enableHighAccuracy: true,
+      maximumAge: 1000,
+      timeout: 10000
+    };
 
-    this.geoWatchId = navigator.geolocation.watchPosition(
-      (pos) => {
-        this.userPosition = {
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude,
-          accuracy: pos.coords.accuracy
-        };
-        document.getElementById('hudLat').textContent = `Lat: ${this.userPosition.lat.toFixed(4)}°`;
-        document.getElementById('hudLng').textContent = `Lng: ${this.userPosition.lng.toFixed(4)}°`;
-        document.getElementById('hudAccuracy').textContent = `± ${Math.round(this.userPosition.accuracy)} m`;
-        this.updateHudDistanceBearing();
-      },
-      (err) => {
-        document.getElementById('hudLat').textContent = 'Location denied';
-        document.getElementById('hudLng').textContent = '';
-        document.getElementById('hudAccuracy').textContent = '';
-      },
+    this.globalGeoWatchId = navigator.geolocation.watchPosition(
+      (pos) => this.handleGeolocationUpdate(pos),
+      (err) => this.handleGeolocationError(err),
       options
     );
+  }
+
+  handleGeolocationUpdate(pos) {
+    const coords = pos.coords;
+    this.userPosition = {
+      lat: coords.latitude,
+      lng: coords.longitude,
+      accuracy: coords.accuracy || 10,
+      speed: coords.speed !== null && !isNaN(coords.speed) ? coords.speed : 0,
+      altitude: coords.altitude !== null && !isNaN(coords.altitude) ? coords.altitude : null,
+      heading: coords.heading !== null && !isNaN(coords.heading) ? coords.heading : null,
+      timestamp: pos.timestamp || Date.now()
+    };
+
+    // 1. Update live user marker on SVG map
+    this.updateUserMapMarker();
+
+    // 2. Perform dynamic proximity detection & alerts
+    this.checkProximityAlerts();
+
+    // 3. Continuously update AR camera overlay if active
+    if (this.hudActive) {
+      this.updateHudWithLiveStream();
+    }
+  }
+
+  handleGeolocationError(err) {
+    console.warn('Geolocation stream notification:', err.message);
+    const hudLat = document.getElementById('hudLat');
+    const hudLng = document.getElementById('hudLng');
+    const hudAcc = document.getElementById('hudAccuracy');
+    if (hudLat && !this.userPosition) hudLat.textContent = 'GPS Searching...';
+    if (hudLng && !this.userPosition) hudLng.textContent = '';
+    if (hudAcc && !this.userPosition) hudAcc.textContent = '';
+  }
+
+  updateHudWithLiveStream() {
+    if (!this.userPosition) return;
+
+    const { lat, lng, accuracy, speed, altitude } = this.userPosition;
+
+    const latEl = document.getElementById('hudLat');
+    const lngEl = document.getElementById('hudLng');
+    const accEl = document.getElementById('hudAccuracy');
+    const speedEl = document.getElementById('hudSpeed');
+    const altEl = document.getElementById('hudAltitude');
+
+    if (latEl) latEl.textContent = `Lat: ${lat.toFixed(4)}°`;
+    if (lngEl) lngEl.textContent = `Lng: ${lng.toFixed(4)}°`;
+    if (accEl) accEl.textContent = `± ${Math.round(accuracy)} m`;
+    if (speedEl) speedEl.textContent = `⚡ ${(speed * 3.6).toFixed(1)} km/h`;
+    if (altEl) {
+      altEl.textContent = altitude !== null && !isNaN(altitude)
+        ? `▲ ${Math.round(altitude)} m ASL`
+        : `▲ --- m ASL`;
+    }
+
+    // Update nearby list in HUD
+    this.updateHudNearbyList();
+
+    // Auto-select nearest site as target vector if none is selected
+    if (!this.hudTarget && this.nearestSites.length > 0) {
+      this.hudTarget = this.nearestSites[0].site;
+    }
+
+    // Recalculate target vector distance & bearing
+    this.updateHudDistanceBearing();
+  }
+
+  updateHudNearbyList() {
+    const listEl = document.getElementById('hudNearbyList');
+    if (!listEl) return;
+
+    if (!this.nearestSites || this.nearestSites.length === 0) {
+      listEl.innerHTML = '<div class="hud-nearby-item hud-value">Searching nearby...</div>';
+      return;
+    }
+
+    const top3 = this.nearestSites.slice(0, 3);
+    listEl.innerHTML = top3.map(item => {
+      const distStr = item.dist < 1 ? `${Math.round(item.dist * 1000)}m` : `${item.dist.toFixed(1)}km`;
+      const badgeClass = item.dist < 0.5 ? 'dist-alert' : item.dist < 2.0 ? 'dist-warn' : 'dist-ok';
+      const isTarget = this.hudTarget && this.hudTarget.id === item.site.id;
+      return `
+        <div class="hud-nearby-item" data-site-id="${item.site.id}" style="cursor:pointer; ${isTarget ? 'border-left: 2px solid #00E5FF; padding-left: 4px; background: rgba(0, 229, 255, 0.1);' : ''}" title="Tap to track this monument">
+          <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:130px;">
+            ${item.site.emoji} ${item.site.name}
+          </span>
+          <span class="hud-nearby-dist ${badgeClass}">${distStr}</span>
+        </div>
+      `;
+    }).join('');
+
+    // Attach tap-to-track listeners
+    listEl.querySelectorAll('.hud-nearby-item').forEach(el => {
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const siteId = el.getAttribute('data-site-id');
+        const targetSite = findSiteById(siteId);
+        if (targetSite) {
+          this.hudTarget = targetSite;
+          this.updateHudDistanceBearing();
+          this.updateHudNearbyList();
+        }
+      });
+    });
+  }
+
+  checkProximityAlerts() {
+    if (!this.userPosition) return;
+
+    const distances = heritageSites.map(site => {
+      const [sLat, sLng] = site.location.coordinates;
+      const dist = this.calculateDistance(this.userPosition.lat, this.userPosition.lng, sLat, sLng);
+      return { site, dist };
+    });
+
+    distances.sort((a, b) => a.dist - b.dist);
+    this.nearestSites = distances;
+
+    if (distances.length === 0) return;
+
+    const closest = distances[0];
+    let tier = null;
+    if (closest.dist <= 0.5) {
+      tier = 'alert';
+    } else if (closest.dist <= 2.0) {
+      tier = 'warning';
+    } else if (closest.dist <= 10.0) {
+      tier = 'nearby';
+    }
+
+    if (tier) {
+      const now = Date.now();
+      const lastAlert = this.alertCooldowns.get(closest.site.id) || 0;
+      // 30-second cooldown per site
+      if (now - lastAlert > 30000) {
+        this.alertCooldowns.set(closest.site.id, now);
+        this.showProximityToast(closest.site, closest.dist, tier);
+      }
+    }
+  }
+
+  showProximityToast(site, dist, tier) {
+    const container = document.getElementById('proximityToastContainer');
+    if (!container) return;
+
+    const distFormatted = dist < 1 ? `${Math.round(dist * 1000)} m` : `${dist.toFixed(1)} km`;
+    const tierLabels = {
+      alert: 'Monument In Range',
+      warning: 'Approaching Site',
+      nearby: 'Nearby Heritage Site'
+    };
+
+    const toast = document.createElement('div');
+    toast.className = `proximity-toast ${tier}`;
+    toast.setAttribute('role', 'alert');
+    toast.innerHTML = `
+      <div class="toast-header">
+        <div class="toast-icon">${site.emoji || '🏛️'}</div>
+        <div class="toast-title-group">
+          <div class="toast-title">${tierLabels[tier]}</div>
+          <div class="toast-name">${site.name}</div>
+          <div class="toast-name-hindi">${site.nameHindi || `${site.location.city}, ${site.location.state}`}</div>
+        </div>
+        <button class="toast-close" aria-label="Dismiss">&times;</button>
+      </div>
+      <div class="toast-body">
+        <span class="toast-dist-badge">${distFormatted} away</span>
+        <span class="toast-action">Explore Details &rarr;</span>
+      </div>
+      <div class="toast-progress">
+        <div class="toast-progress-bar"></div>
+      </div>
+    `;
+
+    // Click toast opens site details modal
+    toast.addEventListener('click', (e) => {
+      if (e.target.closest('.toast-close')) return;
+      this.showSiteLightbox(site);
+      this.dismissToast(toast);
+    });
+
+    // Close button
+    const closeBtn = toast.querySelector('.toast-close');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.dismissToast(toast);
+      });
+    }
+
+    container.appendChild(toast);
+
+    // Keep max 3 toasts stacked
+    while (container.children.length > 3) {
+      container.removeChild(container.firstChild);
+    }
+
+    // Auto dismiss after 6s
+    setTimeout(() => {
+      this.dismissToast(toast);
+    }, 6000);
+  }
+
+  dismissToast(toast) {
+    if (!toast || toast.classList.contains('toast-exit')) return;
+    toast.classList.add('toast-exit');
+    setTimeout(() => {
+      if (toast.parentNode) toast.parentNode.removeChild(toast);
+    }, 350);
+  }
+
+  // Developer & test simulation helper
+  simulatePosition(lat, lng, speed = 1.4, altitude = 215) {
+    this.handleGeolocationUpdate({
+      coords: {
+        latitude: lat,
+        longitude: lng,
+        accuracy: 8,
+        speed: speed,
+        altitude: altitude,
+        heading: 45
+      },
+      timestamp: Date.now()
+    });
   }
 
   startOrientationTracking() {
@@ -1119,6 +1341,9 @@ IMPORTANT: confidence should be 0-100 based on how certain you are. Only return 
 
       svg.appendChild(g);
     });
+
+    // Initialize live user location marker on SVG map
+    this.initUserMapMarker();
   }
 
   // Approximate coordinate transforms for our SVG viewBox (0,0,900,900)
@@ -1130,6 +1355,149 @@ IMPORTANT: confidence should be 0-100 based on how certain you are. Only return 
   coordToSvgY(lat) {
     // India spans roughly 8°N to 37°N
     return ((37 - lat) / 29) * 750 + 20;
+  }
+
+  initUserMapMarker() {
+    const svg = document.getElementById('indiaMap');
+    if (!svg) return;
+
+    let userG = document.getElementById('userLocationMarker');
+    if (!userG) {
+      userG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      userG.setAttribute('id', 'userLocationMarker');
+      userG.setAttribute('class', 'user-location-group');
+      userG.style.display = 'none';
+      userG.style.cursor = 'pointer';
+
+      // Outer pulsing aura
+      const pulse = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      pulse.setAttribute('class', 'user-pulse-ring');
+      pulse.setAttribute('cx', '0');
+      pulse.setAttribute('cy', '0');
+      pulse.setAttribute('r', '8');
+      pulse.setAttribute('fill', 'none');
+      pulse.setAttribute('stroke', '#00E5FF');
+      pulse.setAttribute('stroke-width', '2');
+      pulse.setAttribute('opacity', '0.8');
+
+      const animR = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
+      animR.setAttribute('attributeName', 'r');
+      animR.setAttribute('from', '8');
+      animR.setAttribute('to', '30');
+      animR.setAttribute('dur', '1.8s');
+      animR.setAttribute('repeatCount', 'indefinite');
+      pulse.appendChild(animR);
+
+      const animO = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
+      animO.setAttribute('attributeName', 'opacity');
+      animO.setAttribute('from', '0.8');
+      animO.setAttribute('to', '0');
+      animO.setAttribute('dur', '1.8s');
+      animO.setAttribute('repeatCount', 'indefinite');
+      pulse.appendChild(animO);
+
+      // Accuracy halo
+      const accuracyRing = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      accuracyRing.setAttribute('class', 'user-accuracy-ring');
+      accuracyRing.setAttribute('cx', '0');
+      accuracyRing.setAttribute('cy', '0');
+      accuracyRing.setAttribute('r', '16');
+      accuracyRing.setAttribute('fill', 'rgba(0, 150, 255, 0.15)');
+      accuracyRing.setAttribute('stroke', 'rgba(0, 229, 255, 0.45)');
+      accuracyRing.setAttribute('stroke-width', '1.5');
+
+      // Solid outer dot
+      const outerDot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      outerDot.setAttribute('class', 'user-outer-dot');
+      outerDot.setAttribute('cx', '0');
+      outerDot.setAttribute('cy', '0');
+      outerDot.setAttribute('r', '7');
+      outerDot.setAttribute('fill', '#0070F3');
+      outerDot.setAttribute('stroke', '#FFFFFF');
+      outerDot.setAttribute('stroke-width', '2');
+      outerDot.style.filter = 'drop-shadow(0 0 6px rgba(0, 112, 243, 0.8))';
+
+      // Inner white dot
+      const innerDot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      innerDot.setAttribute('class', 'user-inner-dot');
+      innerDot.setAttribute('cx', '0');
+      innerDot.setAttribute('cy', '0');
+      innerDot.setAttribute('r', '2.5');
+      innerDot.setAttribute('fill', '#FFFFFF');
+
+      // Heading arrow (shows direction of travel if moving or facing)
+      const headingArrow = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      headingArrow.setAttribute('class', 'user-heading-arrow');
+      headingArrow.setAttribute('d', 'M 0,-18 L -6,-10 L 6,-10 Z');
+      headingArrow.setAttribute('fill', '#00E5FF');
+      headingArrow.setAttribute('opacity', '0.9');
+      headingArrow.style.display = 'none';
+
+      userG.appendChild(pulse);
+      userG.appendChild(accuracyRing);
+      userG.appendChild(outerDot);
+      userG.appendChild(innerDot);
+      userG.appendChild(headingArrow);
+
+      // Tooltip interaction
+      userG.addEventListener('mouseenter', (e) => {
+        const tooltip = document.getElementById('mapTooltip');
+        if (!tooltip || !this.userPosition) return;
+        tooltip.style.display = 'block';
+        const speedKmh = (this.userPosition.speed * 3.6).toFixed(1);
+        tooltip.innerHTML = `
+          <div class="tooltip-name" style="color:#00E5FF;">📍 Live GPS Stream</div>
+          <div class="tooltip-detail">
+            ${this.userPosition.lat.toFixed(4)}°N, ${this.userPosition.lng.toFixed(4)}°E<br>
+            Accuracy: ±${Math.round(this.userPosition.accuracy)}m · Speed: ${speedKmh} km/h
+          </div>
+        `;
+      });
+      userG.addEventListener('mousemove', (e) => this.moveMapTooltip(e));
+      userG.addEventListener('mouseleave', () => this.hideMapTooltip());
+
+      svg.appendChild(userG);
+      this.userMarkerEl = userG;
+    }
+
+    if (this.userPosition) {
+      this.updateUserMapMarker();
+    }
+  }
+
+  updateUserMapMarker() {
+    if (!this.userPosition) return;
+    const userG = document.getElementById('userLocationMarker') || this.userMarkerEl;
+    if (!userG) return;
+
+    const { lat, lng, accuracy, heading } = this.userPosition;
+
+    const cx = this.coordToSvgX(lng);
+    const cy = this.coordToSvgY(lat);
+
+    // Clamping inside SVG viewBox (0,0,900,900)
+    const clampedX = Math.max(20, Math.min(880, cx));
+    const clampedY = Math.max(20, Math.min(880, cy));
+
+    userG.setAttribute('transform', `translate(${clampedX}, ${clampedY})`);
+    userG.style.display = 'block';
+
+    const accRing = userG.querySelector('.user-accuracy-ring');
+    if (accRing) {
+      const radius = Math.min(45, Math.max(12, (accuracy || 10) / 2));
+      accRing.setAttribute('r', radius);
+    }
+
+    const arrow = userG.querySelector('.user-heading-arrow');
+    if (arrow) {
+      const activeHeading = heading !== null ? heading : this.deviceHeading;
+      if (activeHeading !== null && !isNaN(activeHeading)) {
+        arrow.style.display = 'block';
+        arrow.setAttribute('transform', `rotate(${activeHeading})`);
+      } else {
+        arrow.style.display = 'none';
+      }
+    }
   }
 
   showMapTooltip(e, stateId) {

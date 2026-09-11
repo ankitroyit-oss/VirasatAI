@@ -2653,3 +2653,272 @@ body { top: 0px !important; position: relative !important; }
   z-index: 2;
 }
 
+/* ===========================
+   REAL-TIME GEOLOCATION HUD ADDITIONS
+   =========================== */
+
+/* Speed & Altitude rows in GPS block */
+.hud-speed {
+  color: #00E5FF;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  margin-top: 2px;
+}
+
+.hud-altitude {
+  color: #69F0AE;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+/* Nearby Monuments HUD Block — centered bottom */
+.hud-block.hud-nearby {
+  position: absolute;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 200px;
+  max-width: 260px;
+  text-align: center;
+}
+
+.hud-nearby-item {
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  padding: 3px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.hud-nearby-item:last-child {
+  border-bottom: none;
+}
+
+.hud-nearby-dist {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.hud-nearby-dist.dist-alert  { background: rgba(220,53,69,0.3); color: #FF6B6B; }
+.hud-nearby-dist.dist-warn   { background: rgba(255,193,7,0.3);  color: #FFD700; }
+.hud-nearby-dist.dist-ok     { background: rgba(0,229,255,0.15); color: #00E5FF; }
+
+/* ===========================
+   PROXIMITY TOAST NOTIFICATIONS
+   =========================== */
+
+#proximityToastContainer {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.proximity-toast {
+  pointer-events: all;
+  width: 300px;
+  background: rgba(15, 10, 40, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.1);
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  animation: toastSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.proximity-toast:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+}
+
+.proximity-toast.toast-exit {
+  animation: toastSlideOut 0.35s ease forwards;
+}
+
+/* Border glow per severity */
+.proximity-toast.nearby  { border-color: rgba(0, 229, 255, 0.45); box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 20px rgba(0,229,255,0.15); }
+.proximity-toast.warning { border-color: rgba(255, 193, 7, 0.5);  box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 20px rgba(255,193,7,0.2); }
+.proximity-toast.alert   { border-color: rgba(220, 53, 69, 0.6);  box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 25px rgba(220,53,69,0.3); }
+
+.toast-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px 8px;
+}
+
+.toast-icon {
+  font-size: 28px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.toast-title-group {
+  flex: 1;
+  min-width: 0;
+}
+
+.toast-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.proximity-toast.nearby  .toast-title { color: #00E5FF; }
+.proximity-toast.warning .toast-title { color: #FFD700; }
+.proximity-toast.alert   .toast-title { color: #FF6B6B; }
+
+.toast-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.toast-name-hindi {
+  font-size: 11px;
+  color: rgba(212, 168, 83, 0.9);
+  font-family: var(--font-accent);
+}
+
+.toast-close {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.5);
+  font-size: 12px;
+  line-height: 22px;
+  text-align: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.2s, color 0.2s;
+}
+
+.toast-close:hover {
+  background: rgba(255,255,255,0.18);
+  color: #fff;
+}
+
+.toast-body {
+  padding: 0 14px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.toast-dist-badge {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.proximity-toast.nearby  .toast-dist-badge { background: rgba(0,229,255,0.15); color: #00E5FF; }
+.proximity-toast.warning .toast-dist-badge { background: rgba(255,193,7,0.15);  color: #FFD700; }
+.proximity-toast.alert   .toast-dist-badge { background: rgba(220,53,69,0.2);   color: #FF6B6B; }
+
+.toast-action {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,0.55);
+  text-transform: uppercase;
+}
+
+/* Progress bar countdown */
+.toast-progress {
+  height: 3px;
+  width: 100%;
+  background: rgba(255,255,255,0.07);
+  position: relative;
+  overflow: hidden;
+}
+
+.toast-progress-bar {
+  position: absolute;
+  top: 0; left: 0;
+  height: 100%;
+  width: 100%;
+  animation: toastProgressShrink 6s linear forwards;
+  transform-origin: left;
+}
+
+.proximity-toast.nearby  .toast-progress-bar { background: #00E5FF; }
+.proximity-toast.warning .toast-progress-bar { background: #FFD700; }
+.proximity-toast.alert   .toast-progress-bar { background: #FF6B6B; }
+
+/* Keyframes */
+@keyframes toastSlideIn {
+  from { opacity: 0; transform: translateX(120px) scale(0.85); }
+  to   { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@keyframes toastSlideOut {
+  from { opacity: 1; transform: translateX(0) scale(1);        max-height: 120px; }
+  to   { opacity: 0; transform: translateX(120px) scale(0.85); max-height: 0; margin: 0; padding: 0; }
+}
+
+@keyframes toastProgressShrink {
+  from { transform: scaleX(1); }
+  to   { transform: scaleX(0); }
+}
+
+/* ===========================
+   LIVE USER LOCATION MAP MARKER
+   =========================== */
+
+.user-location-group {
+  pointer-events: none;
+}
+
+/* Accuracy circle ring - pulsing */
+@keyframes accuracyRingPulse {
+  0%   { opacity: 0.4; r: 4; }
+  50%  { opacity: 0.15; r: 14; }
+  100% { opacity: 0; r: 22; }
+}
+
+/* Speed arrow rotation animation */
+@keyframes markerAppear {
+  from { opacity: 0; transform: scale(0.3); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* Mobile toast adjustment */
+@media (max-width: 480px) {
+  #proximityToastContainer {
+    left: 12px;
+    right: 12px;
+    bottom: 80px;
+  }
+
+  .proximity-toast {
+    width: 100%;
+  }
+}
+
+
